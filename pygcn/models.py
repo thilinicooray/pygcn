@@ -11,14 +11,15 @@ class GCN(nn.Module):
         self.gc1 = GraphConvolution(nfeat, nhid)
         self.gc2 = GraphConvolution(nhid, nhid)
         self.gc3 = GraphConvolution(nhid, nclass)
-        #self.encoder = nn.Parameter(torch.zeros(size=(nhid * 2, nhid)))
+        self.encoder1 = nn.Parameter(torch.zeros(size=(nfeat, nhid)))
         self.encoder = GraphAttentionLayer(nfeat, nhid, dropout=dropout, alpha=0.2, concat=False)
-        self.combiner = nn.Parameter(torch.zeros(size=(nfeat + nhid, nhid)))
+        self.combiner = nn.Parameter(torch.zeros(size=(nhid + nhid, nhid)))
         self.dropout = dropout
 
     def forward(self, x_org, adj):
-        x_org = self.encoder(x_org)
-        x = F.relu(self.gc1(x_org, adj))
+        x_proj = self.encoder1(x_org)
+        x_entire = self.encoder(x_proj)
+        x = F.relu(self.gc1(x_entire, adj))
         x = F.dropout(x, self.dropout, training=self.training)
         #x = self.combiner(torch.cat([x, x_org], -1))
         x = self.gc2(x, adj)
