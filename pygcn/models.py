@@ -11,10 +11,12 @@ class GCN(nn.Module):
         self.gc1 = GraphConvolution(nfeat, nhid)
         self.gc2 = GraphConvolution(nhid, nhid)
         self.gc3 = GraphConvolution(nhid, nclass)
+        self.encoder = nn.Parameter(torch.zeros(size=(nfeat, nhid)))
         self.combiner = nn.Parameter(torch.zeros(size=(nfeat + nhid, nhid)))
         self.dropout = dropout
 
     def forward(self, x_org, adj):
+        x_org = self.encoder(x_org)
         x = F.relu(self.gc1(x_org, adj))
         x = F.dropout(x, self.dropout, training=self.training)
         #x = self.combiner(torch.cat([x, x_org], -1))
