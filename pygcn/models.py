@@ -9,7 +9,8 @@ class GCN(nn.Module):
         super(GCN, self).__init__()
 
         self.gc1 = GraphConvolution(nfeat, nhid)
-        self.gc2 = GraphConvolution(nhid, nclass)
+        self.gc2 = GraphConvolution(nhid, nhid)
+        self.gc3 = GraphConvolution(nhid, nclass)
         self.combiner = nn.Parameter(torch.zeros(size=(nfeat + nhid, nhid)))
         self.dropout = dropout
 
@@ -18,4 +19,8 @@ class GCN(nn.Module):
         x = F.dropout(x, self.dropout, training=self.training)
         x = self.combiner(torch.cat([x, x_org], -1))
         x = self.gc2(x, adj)
+        x = F.dropout(x, self.dropout, training=self.training)
+        x = self.combiner(torch.cat([x, x_org], -1))
+        x = self.gc3(x, adj)
+
         return F.log_softmax(x, dim=1)
