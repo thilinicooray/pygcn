@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from pygcn.layers import GraphConvolution
+from pygcn.layers import GraphConvolution, GraphAttentionLayer
 
 
 class GCN(nn.Module):
@@ -11,7 +11,8 @@ class GCN(nn.Module):
         self.gc1 = GraphConvolution(nfeat, nhid)
         self.gc2 = GraphConvolution(nhid, nhid)
         self.gc3 = GraphConvolution(nhid, nclass)
-        self.encoder = nn.Parameter(torch.zeros(size=(nhid * 2, nhid)))
+        #self.encoder = nn.Parameter(torch.zeros(size=(nhid * 2, nhid)))
+        self.encoder = GraphAttentionLayer(nfeat, nhid, dropout=dropout, alpha=0.2, concat=False)
         self.combiner = nn.Parameter(torch.zeros(size=(nfeat + nhid, nhid)))
         self.dropout = dropout
 
