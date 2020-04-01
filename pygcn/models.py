@@ -11,7 +11,7 @@ class GCN(nn.Module):
         self.gc1 = GraphConvolution(nfeat, nhid)
         self.gc2 = GraphConvolution(nhid, nhid)
         self.gc3 = GraphConvolution(nhid, nclass)
-        self.encoder = nn.Parameter(torch.zeros(size=(nfeat, nhid)))
+        self.encoder = nn.Parameter(torch.zeros(size=(nhid * 2, nhid)))
         self.combiner = nn.Parameter(torch.zeros(size=(nfeat + nhid, nhid)))
         self.dropout = dropout
 
@@ -19,10 +19,10 @@ class GCN(nn.Module):
         x_org = self.encoder(x_org)
         x = F.relu(self.gc1(x_org, adj))
         x = F.dropout(x, self.dropout, training=self.training)
-        #x = self.combiner(torch.cat([x, x_org], -1))
+        x = self.combiner(torch.cat([x, x_org], -1))
         x = self.gc2(x, adj)
         x = F.dropout(x, self.dropout, training=self.training)
-        #x = self.combiner(torch.cat([x, x_org], -1))
+        x = self.combiner(torch.cat([x, x_org], -1))
         x = self.gc3(x, adj)
 
         return F.log_softmax(x, dim=1)
