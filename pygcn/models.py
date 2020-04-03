@@ -15,7 +15,6 @@ class GCN(nn.Module):
         self.dropout = dropout
 
     def forward(self, x_org, adj):
-        print('came here', adj[:5, :5])
         x = F.relu(self.gc1(x_org, adj))
         x = F.dropout(x, self.dropout, training=self.training)
         x = self.combiner(torch.cat([x, x_org], -1))
