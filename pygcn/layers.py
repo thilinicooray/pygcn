@@ -70,6 +70,7 @@ class GraphConvolution(Module):
             self.bias.data.uniform_(-stdv, stdv)
 
     def forward(self, input, adj):
+        print(adj[:10])
         support = torch.mm(input, self.weight)
         output = torch.spmm(adj, support)
         #output = output + input
