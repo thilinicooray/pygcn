@@ -32,16 +32,11 @@ def load_data(path="../data/cora/", dataset="cora"):
                         shape=(labels.shape[0], labels.shape[0]),
                         dtype=np.float32)
 
-    print('1===== \n', adj)
-
     # build symmetric adjacency matrix
     adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
 
-    print('2===== \n', adj)
-
     features = normalize(features)
     adj = normalize(adj + sp.eye(adj.shape[0]))
-    print('3===== \n', adj)
 
     idx_train = range(140)
     idx_val = range(200, 500)
