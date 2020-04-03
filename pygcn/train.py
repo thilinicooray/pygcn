@@ -64,8 +64,6 @@ if args.cuda:
 def train(epoch):
     t = time.time()
 
-    print('inside train')
-
     model.train()
     optimizer.zero_grad()
     output = model(features, adj)
