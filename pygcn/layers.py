@@ -73,9 +73,6 @@ class GraphConvolution(Module):
         support = torch.mm(input, self.weight)
         output = torch.spmm(adj, support)
 
-        print(input.size(), output.size())
-
-        output = output + input
         if self.bias is not None:
             return output + self.bias
         else:
