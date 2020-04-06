@@ -42,9 +42,9 @@ class GCN(nn.Module):
         iq = torch.mul(node_out, neighbour_out)
         iq = F.dropout(iq, self.dropout, training=self.training)
         iq = iq.view(-1, 1, self.nhid, 5)
-        iq = torch.squeeze(torch.sum(iq, 3))                        # sum pool
-        iq = torch.sqrt(F.relu(iq)) - torch.sqrt(F.relu(-iq))       # signed sqrt
-        x1 = F.normalize(iq)
+        x1 = torch.squeeze(torch.sum(iq, 3))                        # sum pool
+        #iq = torch.sqrt(F.relu(iq)) - torch.sqrt(F.relu(-iq))       # signed sqrt
+        #x1 = F.normalize(iq)
 
         x = self.gc2(x1, adj)
         node_out = self.Linear_nodeproj(x1)                   # data_out (batch, 5000)
@@ -52,9 +52,7 @@ class GCN(nn.Module):
         iq = torch.mul(node_out, neighbour_out)
         iq = F.dropout(iq, self.dropout, training=self.training)
         iq = iq.view(-1, 1, self.nhid, 5)
-        iq = torch.squeeze(torch.sum(iq, 3))                        # sum pool
-        iq = torch.sqrt(F.relu(iq)) - torch.sqrt(F.relu(-iq))       # signed sqrt
-        x2 = F.normalize(iq)
+        x2 = torch.squeeze(torch.sum(iq, 3))                        # sum pool
 
         x = self.gc3(x2, adj)
 
