@@ -37,8 +37,8 @@ class GraphConvolution(Module):
 
     def forward(self, input, adj):
         #support = torch.mm(input, self.weight)
-        data_out = self.Linear_dataproj(input)                   # data_out (batch, 5000)
-        img_feature = self.Linear_imgproj(input)      # img_feature (batch, 5000)
+        data_out = self.Linear_nodeproj(input)                   # data_out (batch, 5000)
+        img_feature = self.Linear_neighbourproj(input)      # img_feature (batch, 5000)
         iq = torch.mul(data_out, img_feature)
         iq = F.dropout(iq, 0.1, training=self.training)
         iq = iq.view(-1, 1, self.out_features, 3)
