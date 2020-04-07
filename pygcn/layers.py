@@ -36,19 +36,7 @@ class GraphConvolution(Module):
             self.bias.data.uniform_(-stdv, stdv)
 
     def forward(self, input, adj):
-        #support = torch.mm(input, self.weight)
-        data_out = self.Linear_nodeproj(input)                   # data_out (batch, 5000)
-        img_feature = self.Linear_nodeproj(input)      # img_feature (batch, 5000)
-        iq = torch.mul(data_out, img_feature)
-        iq = F.dropout(iq, 0.1, training=self.training)
-        iq = iq.view(-1, 1, self.out_features, 3)
-        iq = torch.squeeze(torch.sum(iq, 3))                        # sum pool
-        iq = torch.sqrt(F.relu(iq)) - torch.sqrt(F.relu(-iq))       # signed sqrt
-        support = F.normalize(iq)
-
-
-        #print('support size ', support.size(), input.size(), adj.size())
-
+        support = torch.mm(input, self.weight)
         output = torch.spmm(adj, support)
         #print('output ', output.size())
         if self.bias is not None:
