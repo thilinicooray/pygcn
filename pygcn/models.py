@@ -9,16 +9,13 @@ class GCN(nn.Module):
 
         self.gc1 = GraphConvolution(nfeat, nhid)
         self.gc2 = GraphConvolution(nhid, nclass)
-        self.gc1_1 = GraphConvolution(nfeat, nhid)
-        self.gc2_1 = GraphConvolution(nhid, nclass)
         self.dropout = dropout
 
+        #self.embedding_h = nn.Linear(nfeat, nhid)
+
     def forward(self, x, adj):
-        x1 = F.relu(self.gc1(x, adj))
-        x2 = F.relu(self.gc1_1(x, adj))
-        x = x1 * x2
+
+        x = F.relu(self.gc1(x, adj))
         x = F.dropout(x, self.dropout, training=self.training)
-        x3 = self.gc2(x, adj)
-        x4 = self.gc2_1(x, adj)
-        x = x3 * x4
+        x = self.gc2(x, adj)
         return F.log_softmax(x, dim=1)

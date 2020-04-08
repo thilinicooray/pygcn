@@ -2,8 +2,6 @@ import math
 
 import torch
 
-import torch.nn as nn
-import torch.nn.functional as F
 from torch.nn.parameter import Parameter
 from torch.nn.modules.module import Module
 
@@ -22,11 +20,6 @@ class GraphConvolution(Module):
             self.bias = Parameter(torch.FloatTensor(out_features))
         else:
             self.register_parameter('bias', None)
-
-        self.JOINT_EMB_SIZE = 3 * out_features
-        self.Linear_nodeproj = nn.Linear(in_features, self.JOINT_EMB_SIZE)
-        self.Linear_neighbourproj = nn.Linear(in_features, self.JOINT_EMB_SIZE)
-
         self.reset_parameters()
 
     def reset_parameters(self):
@@ -38,7 +31,6 @@ class GraphConvolution(Module):
     def forward(self, input, adj):
         support = torch.mm(input, self.weight)
         output = torch.spmm(adj, support)
-        #print('output ', output.size())
         if self.bias is not None:
             return output + self.bias
         else:
