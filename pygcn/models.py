@@ -11,6 +11,7 @@ class GCN(nn.Module):
         self.gc1 = GraphConvolution(nhid, nhid)
         self.gc2 = GraphConvolution(nhid, nclass)
         self.dropout = dropout
+        print('dropout ', dropout)
 
         self.embedding_h = nn.Linear(nfeat, nhid)
         self.joint = nn.Linear(nhid, nhid)
