@@ -28,10 +28,11 @@ class GraphConvolution(Module):
         if self.bias is not None:
             self.bias.data.uniform_(-stdv, stdv)
 
-    def forward(self, input, adj):
+    def forward(self, input, adj, fully_connected_graph):
         support = torch.mm(input, self.weight)
         output = torch.spmm(adj, support)
-        output = support + output
+        new = torch.mm(fully_connected_graph, support)
+        output = new + output
         if self.bias is not None:
             return output + self.bias
         else:

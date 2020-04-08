@@ -41,6 +41,11 @@ if args.cuda:
 # Load data
 adj, features, labels, idx_train, idx_val, idx_test = load_data()
 
+fully_connected_graph = torch.ones(adj.size(0), adj.size(0))
+
+for idx1 in range(0,adj.size(0)):
+    fully_connected_graph[idx1][idx1] = 0
+
 for k in range(10):
 
     # Model and optimizer
@@ -54,6 +59,7 @@ for k in range(10):
     if args.cuda:
         model.cuda()
         features = features.cuda()
+        fully_connected_graph = fully_connected_graph.cuda()
         adj = adj.cuda()
         labels = labels.cuda()
         idx_train = idx_train.cuda()
@@ -66,7 +72,7 @@ for k in range(10):
 
         model.train()
         optimizer.zero_grad()
-        output = model(features, adj)
+        output = model(features, adj, fully_connected_graph)
         loss_train = F.nll_loss(output[idx_train], labels[idx_train])
         acc_train = accuracy(output[idx_train], labels[idx_train])
         loss_train.backward()
@@ -76,7 +82,7 @@ for k in range(10):
             # Evaluate validation set performance separately,
             # deactivates dropout during validation run.
             model.eval()
-            output = model(features, adj)
+            output = model(features, adj, fully_connected_graph)
 
         loss_val = F.nll_loss(output[idx_val], labels[idx_val])
         acc_val = accuracy(output[idx_val], labels[idx_val])
@@ -90,7 +96,7 @@ for k in range(10):
 
     def test():
         model.eval()
-        output = model(features, adj)
+        output = model(features, adj, fully_connected_graph)
         loss_test = F.nll_loss(output[idx_test], labels[idx_test])
         acc_test = accuracy(output[idx_test], labels[idx_test])
         print("Test set results:",
