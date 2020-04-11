@@ -53,8 +53,8 @@ class GCN(nn.Module):
         return F.log_softmax(x, dim=1)'''
 
     def forward(self, x, adj, adj1, fully_connected_graph):
-        x = F.relu(self.gc1(x, adj))
+        x = F.relu(self.gc1(x, adj1))
         x = F.dropout(x, self.dropout, training=self.training)
-        x = self.gc2(x, adj)
+        x = self.gc2(x, adj1)
         return F.log_softmax(x, dim=1)
 
