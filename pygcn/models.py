@@ -11,10 +11,11 @@ class GCN(nn.Module):
         self.gc1 = GraphConvolution(nfeat, nhid)
         self.gc_e = GraphConvolution(nfeat, nhid)
         self.gc2 = GraphConvolution(nhid, nclass)
-        self.joint = nn.Linear(nhid, nhid)
+        self.emb = nn.Linear(nfeat, nhid)
         self.dropout = dropout
 
     def forward(self, x, adj, fully_connected_graph):
+        x = self.emb(x)
         #making edge features
         conv1 = x.unsqueeze(1).expand(adj.size(0), adj.size(0), x.size(-1))
         conv2 = x.unsqueeze(0).expand(adj.size(0), adj.size(0), x.size(-1))
