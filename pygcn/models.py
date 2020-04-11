@@ -34,7 +34,14 @@ class GCN(nn.Module):
         x = x1 + x_e + x_init
         x = self.gc2(x, adj)
 
-        x_e = edge_feat + x1 + x_e
+        conv1 = x1.unsqueeze(1).expand(adj.size(0), adj.size(0), x1.size(-1))
+        conv2 = x1.unsqueeze(0).expand(adj.size(0), adj.size(0), x1.size(-1))
+        conv1 = conv1.contiguous().view(-1, x1.size(-1))
+        conv2 = conv2.contiguous().view(-1, x1.size(-1))
+
+        #edge_feat = torch.cat([conv1, conv2], -1)
+        edge_feat1 = conv1 * conv2
+        x_e = edge_feat + edge_feat1
         x_e = self.gc_e2(x_e, adj1)
 
         x = x + x_e
