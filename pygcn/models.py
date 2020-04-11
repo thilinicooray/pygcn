@@ -19,8 +19,8 @@ class GCN(nn.Module):
         #making edge features
         conv1 = x_init.unsqueeze(1).expand(adj.size(0), adj.size(0), x_init.size(-1))
         conv2 = x_init.unsqueeze(0).expand(adj.size(0), adj.size(0), x_init.size(-1))
-        conv1 = conv1.contiguous().view(-1, x.size(-1))
-        conv2 = conv2.contiguous().view(-1, x.size(-1))
+        conv1 = conv1.contiguous().view(-1, x_init.size(-1))
+        conv2 = conv2.contiguous().view(-1, x_init.size(-1))
 
         edge_feat = torch.cat([conv1, conv2], -1)
 
