@@ -8,7 +8,7 @@ class GCN(nn.Module):
     def __init__(self, nfeat, nhid, nclass, dropout):
         super(GCN, self).__init__()
 
-        self.gc1 = GraphConvolution(nfeat, nhid)
+        self.gc1 = GraphConvolution(nhid, nhid)
         self.gc_e = GraphConvolution_edge(2*nhid, nhid)
         self.gc2 = GraphConvolution(nhid, nclass)
         self.emb = nn.Linear(nfeat, nhid)
