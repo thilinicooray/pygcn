@@ -45,8 +45,8 @@ class GCN(nn.Module):
         x_e = edge_feat + edge_feat1
         x_e = self.gc_e2(x_e, adj1)
 
-        x = F.dropout(F.relu(x + x_e), self.dropout, training=self.training)
-
+        #x = F.dropout(F.relu(x + x_e), self.dropout, training=self.training)
+        x = x + x_e
         x = self.cls(x)
 
 
