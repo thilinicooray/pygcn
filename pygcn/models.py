@@ -9,7 +9,7 @@ class GCN(nn.Module):
         super(GCN, self).__init__()
 
         self.gc1 = GraphConvolution(nhid, nhid)
-        self.gc_e = GraphConvolution_edge(2*nhid, nhid)
+        self.gc_e = GraphConvolution_edge(nhid, nhid)
         self.gc2 = GraphConvolution(nhid, nclass)
         self.emb = nn.Linear(nfeat, nhid)
         self.dropout = dropout
@@ -22,7 +22,8 @@ class GCN(nn.Module):
         conv1 = conv1.contiguous().view(-1, x_init.size(-1))
         conv2 = conv2.contiguous().view(-1, x_init.size(-1))
 
-        edge_feat = torch.cat([conv1, conv2], -1)
+        #edge_feat = torch.cat([conv1, conv2], -1)
+        edge_feat = conv1 + conv2
 
         x_e = F.relu(self.gc_e(edge_feat, adj1))
         x_e = F.dropout(x_e, self.dropout, training=self.training)
