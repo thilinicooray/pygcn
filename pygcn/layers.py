@@ -67,13 +67,8 @@ class GraphConvolution_edge(Module):
         support = torch.mm(input, self.weight)
         support = support.contiguous().view(adj.size(0), adj.size(0), -1)
         adj = adj.unsqueeze(-1).expand(adj.size(0), adj.size(0), support.size(-1))
-        print(support.size(), adj.size(), adj[0,0])
         a = support * adj
-        a = a.sum(1)
-
-        output = torch.spmm(adj, support)
-
-
+        output = a.sum(1)
 
         if self.bias is not None:
             return output + self.bias
