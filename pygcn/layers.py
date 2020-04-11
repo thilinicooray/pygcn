@@ -66,8 +66,8 @@ class GraphConvolution_edge(Module):
     def forward(self, input, adj):
         support = torch.mm(input, self.weight)
         support = support.contiguous().view(adj.size(0), adj.size(0), -1)
-        adj = adj.unsqueeze(-1)
-        print(support.size(), adj.size())
+        adj = adj.unsqueeze(-1).expand(adj.size(0), adj.size(0), support.size(-1))
+        print(support.size(), adj.size(), adj[0,0])
         a = support * adj
         a = a.sum(1)
 
