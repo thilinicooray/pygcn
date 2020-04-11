@@ -8,11 +8,12 @@ class GCN(nn.Module):
     def __init__(self, nfeat, nhid, nclass, dropout):
         super(GCN, self).__init__()
 
-        self.gc1 = GraphConvolution(nhid*2, nhid)
-        self.gc_e = GraphConvolution_edge(nhid*2, nhid)
-        self.gc_e2 = GraphConvolution_edge(nhid, nclass)
-        self.gc2 = GraphConvolution(nhid, nclass)
-        self.emb = nn.Linear(nfeat, nhid*2)
+        self.gc1 = GraphConvolution(nhid, nhid)
+        self.gc_e = GraphConvolution_edge(nhid, nhid)
+        self.gc_e2 = GraphConvolution_edge(nhid, nhid)
+        self.gc2 = GraphConvolution(nhid, nhid)
+        self.emb = nn.Linear(nfeat, nhid)
+        self.cls = nn.Linear(nhid, nclass)
         self.dropout = dropout
 
     def forward(self, x, adj, adj1, fully_connected_graph):
@@ -44,6 +45,9 @@ class GCN(nn.Module):
         x_e = edge_feat + edge_feat1
         x_e = self.gc_e2(x_e, adj1)
 
-        x = x + x_e
+        x = F.dropout(F.relu(x + x_e), self.dropout, training=self.training)
+
+        x = self.cls(x)
+
 
         return F.log_softmax(x, dim=1)
