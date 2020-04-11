@@ -16,10 +16,10 @@ class GCN(nn.Module):
 
     def forward(self, x, adj, fully_connected_graph):
         #making edge features
-        conv1 = x.unsqueeze(1).expand(adj.size[0], adj.size[0], x.size[-1])
-        conv2 = x.unsqueeze(0).expand(adj.size[0], adj.size[0], x.size[-1])
-        conv1 = conv1.contiguous().view(-1, x.size[-1])
-        conv2 = conv2.contiguous().view(-1, x.size[-1])
+        conv1 = x.unsqueeze(1).expand(adj.size(0), adj.size(0), x.size(-1))
+        conv2 = x.unsqueeze(0).expand(adj.size(0), adj.size(0), x.size(-1))
+        conv1 = conv1.contiguous().view(-1, x.size(-1))
+        conv2 = conv2.contiguous().view(-1, x.size(-1))
 
         print(conv1[:5], conv2[:5])
 
