@@ -9,12 +9,21 @@ class GCN(nn.Module):
         super(GCN, self).__init__()
 
         self.gc1 = GraphConvolution(nfeat, nhid)
+        self.gc_e = GraphConvolution(nfeat, nhid)
         self.gc2 = GraphConvolution(nhid, nclass)
         self.joint = nn.Linear(nhid, nhid)
         self.dropout = dropout
 
     def forward(self, x, adj, fully_connected_graph):
-        x_init = x
+        #making edge features
+        conv1 = x.unsqueeze(1).expand(adj.size[0], adj.size[0], x.size(-1))
+        conv2 = x.unsqueeze(0).expand(adj.size[0], adj.size[0], x.size(-1))
+        conv1 = conv1.contiguous().view(-1, x.size(-1))
+        conv2 = conv2.contiguous().view(-1, x.size(-1))
+
+        print(conv1[:5], conv2[:5])
+
+
         x = F.relu(self.gc1(x, adj))
         x = F.dropout(x, self.dropout, training=self.training)
         #x = self.joint(x)
