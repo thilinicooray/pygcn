@@ -23,7 +23,7 @@ class GCN(nn.Module):
         conv2 = conv2.contiguous().view(-1, x_init.size(-1))
 
         #edge_feat = torch.cat([conv1, conv2], -1)
-        edge_feat = conv1 + conv2
+        edge_feat = conv1 * conv2
 
         x_e = F.relu(self.gc_e(edge_feat, adj1))
         x_e = F.dropout(x_e, self.dropout, training=self.training)
