@@ -10,6 +10,7 @@ class GCN(nn.Module):
 
         self.gc1 = GraphConvolution(nhid, nhid)
         self.gc_e = GraphConvolution_edge(nhid, nhid)
+        self.gc_e2 = GraphConvolution_edge(nhid, nclass)
         self.gc2 = GraphConvolution(nhid, nclass)
         self.emb = nn.Linear(nfeat, nhid)
         self.dropout = dropout
@@ -28,8 +29,14 @@ class GCN(nn.Module):
         x_e = F.relu(self.gc_e(edge_feat, adj1))
         x_e = F.dropout(x_e, self.dropout, training=self.training)
         x = F.relu(self.gc1(x_init, adj))
-        x = F.dropout(x, self.dropout, training=self.training)
+        x1 = F.dropout(x, self.dropout, training=self.training)
         #x = self.joint(x)
-        x = x + x_e + x_init
+        x = x1 + x_e + x_init
         x = self.gc2(x, adj)
+
+        x_e = edge_feat + x1 + x_e
+        x_e = self.gc_e2(x_e, adj1)
+
+        x = x + x_e
+
         return F.log_softmax(x, dim=1)
