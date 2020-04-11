@@ -53,6 +53,7 @@ class GCN(nn.Module):
         return F.log_softmax(x, dim=1)'''
 
     def forward(self, x_init, adj, adj1, fully_connected_graph):
+        x_init = self.emb(x_init)
         x = F.relu(self.gc1(x_init, adj1))
         x = F.dropout(x, self.dropout, training=self.training)
         #x = self.joint(torch.cat([x_init, x], -1))
