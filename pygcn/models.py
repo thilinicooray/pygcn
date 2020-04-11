@@ -14,7 +14,7 @@ class GCN(nn.Module):
         self.emb = nn.Linear(nfeat, nhid)
         self.dropout = dropout
 
-    def forward(self, x, adj, fully_connected_graph):
+    def forward(self, x, adj, adj1, fully_connected_graph):
         x = self.emb(x)
         #making edge features
         conv1 = x.unsqueeze(1).expand(adj.size(0), adj.size(0), x.size(-1))
@@ -24,7 +24,7 @@ class GCN(nn.Module):
 
         edge_feat = torch.cat([conv1, conv2], -1)
 
-        x_e = self.gc_e(edge_feat, adj)
+        x_e = self.gc_e(edge_feat, adj1)
 
         x = F.relu(self.gc1(x, adj))
         x = F.dropout(x, self.dropout, training=self.training)

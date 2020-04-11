@@ -38,21 +38,21 @@ def load_data(path="../data/cora/", dataset="cora"):
     features = normalize(features)
     adj = normalize(adj + sp.eye(adj.shape[0]))
 
-    print('original adj ', adj)
-
     idx_train = range(140)
     idx_val = range(200, 500)
     idx_test = range(500, 1500)
 
     features = torch.FloatTensor(np.array(features.todense()))
     labels = torch.LongTensor(np.where(labels)[1])
+    adj1 = torch.FloatTensor(np.array(adj.todense()))
     adj = sparse_mx_to_torch_sparse_tensor(adj)
+
 
     idx_train = torch.LongTensor(idx_train)
     idx_val = torch.LongTensor(idx_val)
     idx_test = torch.LongTensor(idx_test)
 
-    return adj, features, labels, idx_train, idx_val, idx_test
+    return adj, adj1, features, labels, idx_train, idx_val, idx_test
 
 
 def normalize(mx):
