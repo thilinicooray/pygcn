@@ -79,8 +79,8 @@ class GCN(nn.Module):
 
         edge_feat = torch.cat([conv1, conv2], -1)
 
-        x_e = F.relu(self.gc_e2(edge_feat, adj1))
-        #x_e = F.dropout(x_e, self.dropout, training=self.training)
+        x_e = torch.tanh(self.gc_e2(edge_feat, adj1))
+        x_e = F.dropout(x_e, self.dropout, training=self.training)
 
 
 
