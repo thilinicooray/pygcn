@@ -8,7 +8,7 @@ class GCN(nn.Module):
     def __init__(self, nfeat, nhid, nclass, dropout):
         super(GCN, self).__init__()
 
-        self.gc1 = GraphConvolution(nhid, nhid)
+        self.gc1 = GraphConvolution(nhid*2, nhid)
         self.gc_e = GraphConvolution_edge(nhid*2, nhid)
         self.gc_e2 = GraphConvolution_edge(nhid, nhid)
         self.gc2 = GraphConvolution(nhid, nclass)
@@ -67,7 +67,7 @@ class GCN(nn.Module):
         x_e = F.dropout(x_e, self.dropout, training=self.training)
 
 
-        x = F.relu(self.gc1(x_init * x_e, adj1))
+        x = F.relu(self.gc1(torch.cat([x_init,  x_e],-1), adj1))
         x = F.dropout(x, self.dropout, training=self.training)
         #x = self.joint(torch.cat([x_init, x], -1))
         x = x + x_init
