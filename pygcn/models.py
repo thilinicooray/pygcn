@@ -69,7 +69,7 @@ class GCN(nn.Module):
 
         x = F.relu(self.gc1(x_init, adj1))
         x = F.dropout(x, self.dropout, training=self.training)
-        x = self.joint(torch.cat([x_init, x], -1))
+        x = torch.cat([x_init, x], -1)
         #x = x + x_init
 
         '''conv1 = x.unsqueeze(1).expand(adj.size(0), adj.size(0), x.size(-1))
