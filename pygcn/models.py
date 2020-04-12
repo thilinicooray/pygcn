@@ -67,10 +67,10 @@ class GCN(nn.Module):
         x_e = F.dropout(x_e, self.dropout, training=self.training)
 
 
-        #x = F.relu(self.gc1(x_init, adj1))
-        #x = F.dropout(x, self.dropout, training=self.training)
+        x = F.relu(self.gc1(x_init + x_e, adj1))
+        x = F.dropout(x, self.dropout, training=self.training)
         #x = self.joint(torch.cat([x_init, x], -1))
-        x = x_init + x_e
+        x = x + x_init
         x = self.gc2(x, adj1)
         return F.log_softmax(x, dim=1)
 
