@@ -8,7 +8,7 @@ class GCN(nn.Module):
     def __init__(self, nfeat, nhid, nclass, dropout):
         super(GCN, self).__init__()
 
-        self.gc1 = GraphConvolution(nhid*2, nhid)
+        self.gc1 = GraphConvolution(nfeat, nhid)
         self.gc_e = GraphConvolution_edge(nhid*2, nhid)
         self.gc_e2 = GraphConvolution_edge(nhid*2, nhid)
         self.gc2 = GraphConvolution(nhid*2, nclass)
@@ -53,10 +53,10 @@ class GCN(nn.Module):
         return F.log_softmax(x, dim=1)'''
 
     def forward(self, x_init, adj, adj1, fully_connected_graph):
-        x_init = torch.tanh(self.emb(x_init))
+        #x_init = torch.tanh(self.emb(x_init))
 
         #making edge features
-        conv1 = x_init.unsqueeze(1).expand(adj.size(0), adj.size(0), x_init.size(-1))
+        '''conv1 = x_init.unsqueeze(1).expand(adj.size(0), adj.size(0), x_init.size(-1))
         conv2 = x_init.unsqueeze(0).expand(adj.size(0), adj.size(0), x_init.size(-1))
         conv1 = conv1.contiguous().view(-1, x_init.size(-1))
         conv2 = conv2.contiguous().view(-1, x_init.size(-1))
@@ -64,13 +64,13 @@ class GCN(nn.Module):
         edge_feat = torch.cat([conv1, conv2], -1)
 
         x_e = F.relu(self.gc_e(edge_feat, adj1))
-        x_e = F.dropout(x_e, self.dropout, training=self.training)
+        x_e = F.dropout(x_e, self.dropout, training=self.training)'''
 
 
-        x = F.relu(self.gc1(torch.cat([x_init,  x_e],-1), adj1))
+        x = F.relu(self.gc1(x_init, adj1))
         x = F.dropout(x, self.dropout, training=self.training)
         #x = self.joint(torch.cat([x_init, x], -1))
-        x = x + x_init
+        #x = x + x_init
 
         conv1 = x.unsqueeze(1).expand(adj.size(0), adj.size(0), x.size(-1))
         conv2 = x.unsqueeze(0).expand(adj.size(0), adj.size(0), x.size(-1))
