@@ -72,7 +72,7 @@ class GCN(nn.Module):
         #x = self.joint(torch.cat([x_init, x], -1))
         #x = x + x_init
 
-        conv1 = x.unsqueeze(1).expand(adj.size(0), adj.size(0), x.size(-1))
+        '''conv1 = x.unsqueeze(1).expand(adj.size(0), adj.size(0), x.size(-1))
         conv2 = x.unsqueeze(0).expand(adj.size(0), adj.size(0), x.size(-1))
         conv1 = conv1.contiguous().view(-1, x.size(-1))
         conv2 = conv2.contiguous().view(-1, x.size(-1))
@@ -80,10 +80,11 @@ class GCN(nn.Module):
         edge_feat = torch.cat([conv1, conv2], -1)
 
         x_e = torch.tanh(self.gc_e2(edge_feat, adj1))
-        x_e = F.dropout(x_e, self.dropout, training=self.training)
+        x_e = F.dropout(x_e, self.dropout, training=self.training)'''
 
 
 
-        x = self.gc2(torch.cat([x,  x_e],-1), adj1)
+        #x = self.gc2(torch.cat([x,  x_e],-1), adj1)
+        x = self.gc2(x, adj1)
         return F.log_softmax(x, dim=1)
 
