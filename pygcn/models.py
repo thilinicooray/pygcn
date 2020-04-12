@@ -10,7 +10,7 @@ class GCN(nn.Module):
 
         self.gc1 = GraphConvolution(nhid*2, nhid)
         self.gc_e = GraphConvolution_edge(nhid*2, nhid)
-        self.gc_e2 = GraphConvolution_edge(nhid, nhid)
+        self.gc_e2 = GraphConvolution_edge(nhid*2, nhid)
         self.gc2 = GraphConvolution(nhid*2, nclass)
         self.emb = nn.Linear(nfeat, nhid)
         self.joint = nn.Linear(nhid, nhid)
