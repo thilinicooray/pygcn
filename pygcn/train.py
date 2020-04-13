@@ -30,7 +30,7 @@ parser.add_argument('--hidden', type=int, default=16,
 parser.add_argument('--dropout', type=float, default=0.5,
                     help='Dropout rate (1 - keep probability).')
 parser.add_argument('--patience', type=int, default=100, help='Patience')
-parser.add_argument('--epochs', type=int, default=10000, help='Number of epochs to train.')
+parser.add_argument('--epochs', type=int, default=500, help='Number of epochs to train.')
 
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
