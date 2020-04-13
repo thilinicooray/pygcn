@@ -8,6 +8,8 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 import torch.optim as optim
+import os
+import glob
 
 from pygcn.utils import load_data, accuracy
 from pygcn.models import GCN
@@ -68,7 +70,7 @@ for k in range(1):
         idx_test = idx_test.cuda()
 
 
-    def train(epoch):
+    '''def train(epoch):
         t = time.time()
 
         model.train()
@@ -113,4 +115,86 @@ for k in range(1):
     #print("Total time elapsed: {:.4f}s".format(time.time() - t_total))
 
     # Testing
-    test()
+    test()'''
+
+
+    def train(epoch):
+        t = time.time()
+
+        model.train()
+        optimizer.zero_grad()
+        output = model(features, adj, adj1, fully_connected_graph)
+        loss_train = F.nll_loss(output[idx_train], labels[idx_train])
+        acc_train = accuracy(output[idx_train], labels[idx_train])
+        loss_train.backward()
+        optimizer.step()
+
+        if not args.fastmode:
+            # Evaluate validation set performance separately,
+            # deactivates dropout during validation run.
+            model.eval()
+            output = model(features, adj, adj1, fully_connected_graph)
+
+        loss_val = F.nll_loss(output[idx_val], labels[idx_val])
+        acc_val = accuracy(output[idx_val], labels[idx_val])
+        print('Epoch: {:04d}'.format(epoch+1),
+              'loss_train: {:.4f}'.format(loss_train.item()),
+              'acc_train: {:.4f}'.format(acc_train.item()),
+              'loss_val: {:.4f}'.format(loss_val.item()),
+              'acc_val: {:.4f}'.format(acc_val.item()),
+              'time: {:.4f}s'.format(time.time() - t))
+
+        #return loss_val.data.item()
+        return acc_val.data.item()
+
+
+    def compute_test():
+        model.eval()
+        output = model(features, adj, adj1, fully_connected_graph)
+        loss_test = F.nll_loss(output[idx_test], labels[idx_test])
+        acc_test = accuracy(output[idx_test], labels[idx_test])
+        print("Test set results:",
+              "loss= {:.4f}".format(loss_test.item()),
+              "accuracy= {:.4f}".format(acc_test.item()))
+
+    # Train model
+    t_total = time.time()
+    acc_values = []
+    bad_counter = 0
+    best = args.epochs + 1
+    best_epoch = 0
+    for epoch in range(args.epochs):
+        acc_values.append(train(epoch))
+
+        torch.save(model.state_dict(), '{}.pkl'.format(epoch))
+        if acc_values[-1] > best:
+            best = acc_values[-1]
+            best_epoch = epoch
+            bad_counter = 0
+        else:
+            bad_counter += 1
+
+        if bad_counter == args.patience:
+            break
+
+        files = glob.glob('*.pkl')
+        for file in files:
+            epoch_nb = int(file.split('.')[0])
+            if epoch_nb < best_epoch:
+                os.remove(file)
+
+    files = glob.glob('*.pkl')
+    for file in files:
+        epoch_nb = int(file.split('.')[0])
+        if epoch_nb > best_epoch:
+            os.remove(file)
+
+    print("Optimization Finished!")
+    print("Total time elapsed: {:.4f}s".format(time.time() - t_total))
+
+    # Restore best model
+    print('Loading {}th epoch'.format(best_epoch))
+    model.load_state_dict(torch.load('{}.pkl'.format(best_epoch)))
+
+    # Testing
+    compute_test()
