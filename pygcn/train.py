@@ -161,7 +161,7 @@ for k in range(1):
     t_total = time.time()
     acc_values = []
     bad_counter = 0
-    best = args.epochs + 1
+    best = 0
     best_epoch = 0
     for epoch in range(args.epochs):
         acc_values.append(train(epoch))
