@@ -171,11 +171,11 @@ for k in range(1):
             best = acc_values[-1]
             best_epoch = epoch
             bad_counter = 0
-        else:
+        '''else:
             bad_counter += 1
 
         if bad_counter == args.patience:
-            break
+            break'''
 
         files = glob.glob('*.pkl')
         for file in files:
