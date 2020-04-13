@@ -48,7 +48,7 @@ fully_connected_graph = torch.ones(adj.size(0), adj.size(0))
 for idx1 in range(0,adj.size(0)):
     fully_connected_graph[idx1][idx1] = 0
 
-for k in range(1):
+for k in range(10):
 
     # Model and optimizer
     model = GCN(nfeat=features.shape[1],
@@ -167,9 +167,7 @@ for k in range(1):
         acc_values.append(train(epoch))
 
         torch.save(model.state_dict(), '{}.pkl'.format(epoch))
-        print (epoch, acc_values[-1], best)
         if acc_values[-1] > best:
-            print('came in')
             best = acc_values[-1]
             best_epoch = epoch
             bad_counter = 0
