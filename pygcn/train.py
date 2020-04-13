@@ -137,12 +137,12 @@ for k in range(1):
 
         loss_val = F.nll_loss(output[idx_val], labels[idx_val])
         acc_val = accuracy(output[idx_val], labels[idx_val])
-        print('Epoch: {:04d}'.format(epoch+1),
+        '''print('Epoch: {:04d}'.format(epoch+1),
               'loss_train: {:.4f}'.format(loss_train.item()),
               'acc_train: {:.4f}'.format(acc_train.item()),
               'loss_val: {:.4f}'.format(loss_val.item()),
               'acc_val: {:.4f}'.format(acc_val.item()),
-              'time: {:.4f}s'.format(time.time() - t))
+              'time: {:.4f}s'.format(time.time() - t))'''
 
         #return loss_val.data.item()
         return acc_val.data.item()
@@ -167,7 +167,9 @@ for k in range(1):
         acc_values.append(train(epoch))
 
         torch.save(model.state_dict(), '{}.pkl'.format(epoch))
+        print (epoch, acc_values[-1], best)
         if acc_values[-1] > best:
+            print('came in')
             best = acc_values[-1]
             best_epoch = epoch
             bad_counter = 0
