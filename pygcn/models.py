@@ -96,8 +96,8 @@ class GCN(nn.Module):
         total_feat = torch.sum(torch.sum(total_feat, -1).squeeze(),-1)
 
         total_feat = total_feat.expand(adj1.size(0), total_feat.size(-1))
-        print('total_feat ', total_feat.size())
-        #x = self.gc2(torch.cat([x,  x_e],-1), adj1)
+        #print('total_feat ', total_feat.size())
+        x = self.gc2(torch.cat([x,  total_feat],-1), adj1)
 
 
 
