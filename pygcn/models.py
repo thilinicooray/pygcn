@@ -14,7 +14,7 @@ class GCN(nn.Module):
         self.gc3 = GraphConvolution(nhid, nhid)
         self.gc2 = GraphConvolution(nhid, nclass)
         self.emb = nn.Linear(nfeat, nhid)
-        self.joint = nn.Linear(nhid, nhid)
+        self.joint = nn.Linear(nhid + nfeat, nhid)
         self.dropout = dropout
 
     def forward1(self, x, adj, adj1, fully_connected_graph):
@@ -85,7 +85,7 @@ class GCN(nn.Module):
 
         edge_feat = torch.cat([conv1, conv2], -1)
         x = self.gc_e2(edge_feat, adj1)
-        x = x + F.relu(self.joint(x))
+        x = x + F.relu(self.joint(torch.cat([x, x_init], -1)))
         '''x_e = torch.tanh(self.gc_e2(edge_feat, adj1))
         x_e = F.dropout(x_e, self.dropout, training=self.training)
 
