@@ -17,7 +17,7 @@ class GCN(nn.Module):
         self.emb = nn.Linear(nfeat, nhid)
         self.joint = nn.Linear(nhid + nfeat, nhid)
         self.dropout = dropout
-        self.convtry = nn.Conv2d(nhid*2, nhid, [7, 7], 1, 0, bias=False)
+        self.convtry = nn.Conv2d(nhid*2, nhid, [14, 14], 1, 0, bias=False)
 
     def forward1(self, x, adj, adj1, fully_connected_graph):
         '''x_init = self.emb(x)
