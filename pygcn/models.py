@@ -72,7 +72,7 @@ class GCN(nn.Module):
         x = F.relu(self.gc1(x_init, adj1))
         x = F.dropout(x, self.dropout, training=self.training)
 
-        x_e = F.relu(self.gc3(torch.cat([x_init, x] -1), adj1))
+        x_e = F.relu(self.gc3(torch.cat([x_init, x], -1), adj1))
         x_e = F.dropout(x_e, self.dropout, training=self.training)
 
 
