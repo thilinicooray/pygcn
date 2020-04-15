@@ -48,7 +48,7 @@ fully_connected_graph = torch.ones(adj.size(0), adj.size(0))
 for idx1 in range(0,adj.size(0)):
     fully_connected_graph[idx1][idx1] = 0
 
-for k in range(10):
+for k in range(1):
 
     # Model and optimizer
     model = GCN(nfeat=features.shape[1],
@@ -137,12 +137,12 @@ for k in range(10):
 
         loss_val = F.nll_loss(output[idx_val], labels[idx_val])
         acc_val = accuracy(output[idx_val], labels[idx_val])
-        '''print('Epoch: {:04d}'.format(epoch+1),
+        print('Epoch: {:04d}'.format(epoch+1),
               'loss_train: {:.4f}'.format(loss_train.item()),
               'acc_train: {:.4f}'.format(acc_train.item()),
               'loss_val: {:.4f}'.format(loss_val.item()),
               'acc_val: {:.4f}'.format(acc_val.item()),
-              'time: {:.4f}s'.format(time.time() - t))'''
+              'time: {:.4f}s'.format(time.time() - t))
 
         #return loss_val.data.item()
         return acc_val.data.item()
