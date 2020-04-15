@@ -91,7 +91,7 @@ class GCN(nn.Module):
 
         total_feat = torch.cat([conv1, conv2], -1)
         adj_exp = adj1.unsqueeze(-1).expand(adj.size(0), adj.size(0), total_feat.size(-1))
-        total_feat = total_feat * adj_exp
+        total_feat = (total_feat * adj_exp).transpose(0,-1)
         total_feat = self.convtry(total_feat.unsqueeze(0))
         print('total_feat ', total_feat.size())
 
