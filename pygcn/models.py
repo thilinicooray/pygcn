@@ -81,23 +81,23 @@ class GCN(nn.Module):
 
         conv1 = x.unsqueeze(1).expand(adj.size(0), adj.size(0), x.size(-1))
         conv2 = x.unsqueeze(0).expand(adj.size(0), adj.size(0), x.size(-1))
-        conv1 = conv1.contiguous().view(-1, x.size(-1))
+        '''conv1 = conv1.contiguous().view(-1, x.size(-1))
         conv2 = conv2.contiguous().view(-1, x.size(-1))
 
         edge_feat = torch.cat([conv1, conv2], -1)
         x_e = torch.tanh(self.gc_e2(edge_feat, adj1))
-        x_e = F.dropout(x_e, self.dropout, training=self.training)
+        x_e = F.dropout(x_e, self.dropout, training=self.training)'''
+
+        total_feat = torch.cat([conv1, conv2], -1)
+        adj_exp = adj1.unsqueeze(-1).expand(adj.size(0), adj.size(0), total_feat.size(-1))
+        total_feat = total_feat * adj_exp
+
+        print('total_feat ', total_feat.size())
+
+
         #x = self.gc2(torch.cat([x,  x_e],-1), adj1)
 
-        x = torch.cat([x, x_e], -1)
 
-        conv1 = x.unsqueeze(1).expand(adj.size(0), adj.size(0), x.size(-1))
-        conv2 = x.unsqueeze(0).expand(adj.size(0), adj.size(0), x.size(-1))
-        conv1 = conv1.contiguous().view(-1, x.size(-1))
-        conv2 = conv2.contiguous().view(-1, x.size(-1))
-
-        edge_feat = torch.cat([conv1, conv2], -1)
-        x = self.gc_e3(edge_feat, adj1)
 
 
 
