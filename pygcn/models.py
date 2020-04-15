@@ -17,6 +17,7 @@ class GCN(nn.Module):
         self.emb = nn.Linear(nfeat, nhid)
         self.joint = nn.Linear(nhid + nfeat, nhid)
         self.dropout = dropout
+        self.convtry = nn.Conv2d(nhid*2, nhid, [7, 7], 1, 0, bias=False)
 
     def forward1(self, x, adj, adj1, fully_connected_graph):
         '''x_init = self.emb(x)
@@ -91,7 +92,7 @@ class GCN(nn.Module):
         total_feat = torch.cat([conv1, conv2], -1)
         adj_exp = adj1.unsqueeze(-1).expand(adj.size(0), adj.size(0), total_feat.size(-1))
         total_feat = total_feat * adj_exp
-
+        total_feat = self.convtry(total_feat)
         print('total_feat ', total_feat.size())
 
 
