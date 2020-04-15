@@ -11,9 +11,9 @@ class GCN(nn.Module):
         self.gc1 = GraphConvolution(nfeat, nhid)
         self.gc_e = GraphConvolution_edge(nhid*2, nhid)
         self.gc_e2 = GraphConvolution_edge(nhid*2, nhid)
-        self.gc_e3 = GraphConvolution_edge(nhid*2, nhid)
-        self.gc3 = GraphConvolution(nhid + nfeat, nhid)
-        self.gc2 = GraphConvolution(nhid*2 + nfeat, nclass)
+        self.gc_e3 = GraphConvolution_edge(nhid*4, nhid)
+        self.gc3 = GraphConvolution(nhid, nhid)
+        self.gc2 = GraphConvolution(nhid*2, nclass)
         self.emb = nn.Linear(nfeat, nhid)
         self.joint = nn.Linear(nhid + nfeat, nhid)
         self.dropout = dropout
@@ -72,14 +72,14 @@ class GCN(nn.Module):
         x = F.relu(self.gc1(x_init, adj1))
         x = F.dropout(x, self.dropout, training=self.training)
 
-        x_e = F.relu(self.gc3(torch.cat([x_init, x], -1), adj1))
-        x_e = F.dropout(x_e, self.dropout, training=self.training)
+        '''x_e = F.relu(self.gc3(x, adj1))
+        x_e = F.dropout(x_e, self.dropout, training=self.training)'''
 
 
         #x = torch.cat([x_init, x], -1)
         #x = x + x_init
 
-        '''conv1 = x.unsqueeze(1).expand(adj.size(0), adj.size(0), x.size(-1))
+        conv1 = x.unsqueeze(1).expand(adj.size(0), adj.size(0), x.size(-1))
         conv2 = x.unsqueeze(0).expand(adj.size(0), adj.size(0), x.size(-1))
         conv1 = conv1.contiguous().view(-1, x.size(-1))
         conv2 = conv2.contiguous().view(-1, x.size(-1))
@@ -87,10 +87,20 @@ class GCN(nn.Module):
         edge_feat = torch.cat([conv1, conv2], -1)
         x_e = torch.tanh(self.gc_e2(edge_feat, adj1))
         x_e = F.dropout(x_e, self.dropout, training=self.training)
-        x = self.gc2(torch.cat([x,  x_e],-1), adj1)'''
+        #x = self.gc2(torch.cat([x,  x_e],-1), adj1)
+
+        x = torch.cat([x, x_e], -1)
+
+        conv1 = x.unsqueeze(1).expand(adj.size(0), adj.size(0), x.size(-1))
+        conv2 = x.unsqueeze(0).expand(adj.size(0), adj.size(0), x.size(-1))
+        conv1 = conv1.contiguous().view(-1, x.size(-1))
+        conv2 = conv2.contiguous().view(-1, x.size(-1))
+
+        edge_feat = torch.cat([conv1, conv2], -1)
+        x = self.gc_e3(edge_feat, adj1)
 
 
 
-        x = self.gc2(torch.cat([x_init, x,  x_e],-1), adj1)
+        #x = self.gc2(torch.cat([x,  x_e],-1), adj1)
         return F.log_softmax(x, dim=1)
 
