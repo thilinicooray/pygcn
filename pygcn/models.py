@@ -81,9 +81,9 @@ class GCN(nn.Module):
 
         return F.log_softmax(x, dim=1)'''
 
-    def forward(self, x_init, adj, adj1, fully_connected_graph):
+    def forward(self, x_init, adj, adj1_org, fully_connected_graph):
 
-        x = F.relu(self.gc1(x_init, adj))
+        x = F.relu(self.gc1(x_init, adj1_org))
         x = F.dropout(x, self.dropout, training=self.training)
 
         #if self.training:
@@ -97,7 +97,9 @@ class GCN(nn.Module):
         edge_feat = self.confidence(edge_feat)
 
         scores = edge_feat.masked_fill(edge_feat > 0, 1).squeeze()
-        adj1 = adj1 * scores
+        adj1 = adj1_org * scores
+
+        #adj1 = adj1
 
         x = self.gc2(x, adj1)
 
