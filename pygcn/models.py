@@ -30,15 +30,13 @@ class GCN(nn.Module):
     def __init__(self, nfeat, nhid, nclass, dropout):
         super(GCN, self).__init__()
 
-        #self.gc1 = GraphConvolution(nfeat, nhid)
-        #self.gc2 = GraphConvolution(nhid, nclass)
-
-        self.gc1_h1 = FCNet([nfeat, nhid//2])
-        self.gc1_h2 = FCNet([nfeat, nhid//2])
-        self.joint = nn.Linear(nhid, nhid)
-
+        self.gc1 = GraphConvolution(nfeat, nhid)
         self.gc2 = GraphConvolution(nhid, nclass)
 
+        self.confidence = nn.Sequential(nn.Linear(nhid*2, nhid),
+                                        nn.ReLU(),
+                                        nn.Linear(nhid, 1),
+                                        nn.ReLU())
         self.dropout = dropout
 
     def forward1(self, x, adj, adj1, fully_connected_graph):
@@ -79,15 +77,17 @@ class GCN(nn.Module):
 
     def forward(self, x_init, adj, adj1, fully_connected_graph):
 
-        out1 = self.gc1_h1(x_init)
-        out1 = torch.mm(adj1, out1)
-        out2 = self.gc1_h2(x_init)
-        out2 = torch.mm(adj1, out2)
-
-        x = self.joint(torch.cat([out1, out2], -1))
-
-        x = F.relu(x)
+        x = F.relu(self.gc1(x_init, adj))
         x = F.dropout(x, self.dropout, training=self.training)
+
+        conv1 = x.unsqueeze(1).expand(adj.size(0), adj.size(0), x.size(-1))
+        conv2 = x.unsqueeze(0).expand(adj.size(0), adj.size(0), x.size(-1))
+        #conv1 = conv1.contiguous().view(-1, x.size(-1))
+        #conv2 = conv2.contiguous().view(-1, x.size(-1))
+
+        edge_feat = torch.cat([conv1, conv2], -1)
+        edge_feat = self.confidence(edge_feat)
+
 
         x = self.gc2(x, adj1)
 
