@@ -14,7 +14,7 @@ class GCN(nn.Module):
         self.gc1_h1 = nn.Linear(nfeat, nhid//2)
         self.gc1_h2 = nn.Linear(nfeat, nhid//2)
 
-        self.gc2 = GraphConvolution(nhid, nclass)
+        self.gc2 = GraphConvolution(nhid//2, nclass)
 
 
 
@@ -63,7 +63,7 @@ class GCN(nn.Module):
         out2 = self.gc1_h2(x_init)
         out2 = torch.mm(adj1, out2)
 
-        x = torch.cat([out1, out2], -1)
+        x = out1 * out2
 
         x = F.relu(x)
         x = F.dropout(x, self.dropout, training=self.training)
