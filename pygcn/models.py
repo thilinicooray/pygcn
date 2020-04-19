@@ -38,6 +38,11 @@ class GCN(nn.Module):
                                         nn.ReLU(),
                                         nn.Linear(nhid, 1),
                                         nn.Sigmoid())
+
+        self.confidence2 = nn.Sequential(nn.Linear(nhid*2, nhid),
+                                        nn.ReLU(),
+                                        nn.Linear(nhid, 1),
+                                        nn.Sigmoid())
         self.dropout = dropout
 
     def forward1(self, x, adj, adj1, fully_connected_graph):
@@ -102,7 +107,7 @@ class GCN(nn.Module):
         #conv2 = conv2.contiguous().view(-1, x.size(-1))
 
         edge_feat = torch.cat([conv1, conv2], -1)
-        edge_feat = self.confidence(edge_feat)
+        edge_feat = self.confidence2(edge_feat)
 
         scores = edge_feat.masked_fill(edge_feat > 0, 1).squeeze()
         adj1 = adj1 * scores
