@@ -31,6 +31,7 @@ class GCN(nn.Module):
         super(GCN, self).__init__()
 
         self.gc1 = GraphConvolution(nfeat, nhid)
+        self.gc3 = GraphConvolution(nhid, nhid)
         self.gc2 = GraphConvolution(nhid, nclass)
 
         self.confidence = nn.Sequential(nn.Linear(nhid*2, nhid),
@@ -92,6 +93,20 @@ class GCN(nn.Module):
 
         scores = edge_feat.masked_fill(edge_feat > 0, 1).squeeze()
         adj1 = adj1 * scores
+
+        x = self.gc3(x, adj1)
+
+        conv1 = x.unsqueeze(1).expand(adj.size(0), adj.size(0), x.size(-1))
+        conv2 = x.unsqueeze(0).expand(adj.size(0), adj.size(0), x.size(-1))
+        #conv1 = conv1.contiguous().view(-1, x.size(-1))
+        #conv2 = conv2.contiguous().view(-1, x.size(-1))
+
+        edge_feat = torch.cat([conv1, conv2], -1)
+        edge_feat = self.confidence(edge_feat)
+
+        scores = edge_feat.masked_fill(edge_feat > 0, 1).squeeze()
+        adj1 = adj1 * scores
+
 
         x = self.gc2(x, adj1)
 
