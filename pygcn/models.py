@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from pygcn.layers import GraphConvolution, GraphConvolution_edge
+from torch.nn.utils.weight_norm import weight_norm
 
 
 class GCN(nn.Module):
@@ -11,11 +12,11 @@ class GCN(nn.Module):
         #self.gc1 = GraphConvolution(nfeat, nhid)
         #self.gc2 = GraphConvolution(nhid, nclass)
 
-        self.gc1_h1 = nn.Linear(nfeat, nhid*2)
-        self.gc1_h2 = nn.Linear(nfeat, nhid*2)
+        self.gc1_h1 = weight_norm(nn.Linear(nfeat, nhid), dim=None)
+        self.gc1_h2 = weight_norm(nn.Linear(nfeat, nhid), dim=None)
 
-        self.gc2_h1 = nn.Linear(nhid*2, nclass)
-        self.gc2_h2 = nn.Linear(nhid*2, nclass)
+        self.gc2_h1 = nn.Linear(nhid, nclass)
+        self.gc2_h2 = nn.Linear(nhid, nclass)
 
         self.tanh = nn.Tanh()
         self.sigmoid = nn.Sigmoid()
