@@ -37,7 +37,7 @@ class GCN(nn.Module):
         self.confidence = nn.Sequential(nn.Linear(nhid*2, nhid),
                                         nn.ReLU(),
                                         nn.Linear(nhid, 1),
-                                        nn.Tanh())
+                                        )
 
         self.confidence2 = nn.Sequential(nn.Linear(nhid*2, nhid),
                                         nn.ReLU(),
