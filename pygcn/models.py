@@ -11,11 +11,11 @@ class GCN(nn.Module):
         #self.gc1 = GraphConvolution(nfeat, nhid)
         #self.gc2 = GraphConvolution(nhid, nclass)
 
-        self.gc1_h1 = nn.Linear(nfeat, nhid//2)
-        self.gc1_h2 = nn.Linear(nfeat, nhid//2)
+        self.gc1_h1 = nn.Linear(nfeat, nhid)
+        self.gc1_h2 = nn.Linear(nfeat, nhid)
 
-        self.gc2_h1 = nn.Linear(nhid//2, nclass)
-        self.gc2_h2 = nn.Linear(nhid//2, nclass)
+        self.gc2_h1 = nn.Linear(nhid, nclass)
+        self.gc2_h2 = nn.Linear(nhid, nclass)
 
         self.tanh = nn.Tanh()
         self.sigmoid = nn.Sigmoid()
