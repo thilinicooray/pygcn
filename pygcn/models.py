@@ -99,7 +99,7 @@ class GCN(nn.Module):
         scores = edge_feat.masked_fill(edge_feat > 0, 1).squeeze()
         adj1 = adj1_org * scores
 
-        #adj1 = adj1
+        adj1 = adj1 + adj1_org
 
         x = torch.cat([x, x_init], -1)
 
