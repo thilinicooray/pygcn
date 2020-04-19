@@ -3,6 +3,28 @@ import torch.nn as nn
 import torch.nn.functional as F
 from pygcn.layers import GraphConvolution, GraphConvolution_edge
 
+class FCNet(nn.Module):
+    """Simple class for non-linear fully connect network with gated tangent as in paper
+    """
+    def __init__(self, dims):
+        super(FCNet, self).__init__()
+
+        in_dim = dims[0]
+        out_dim = dims[1]
+        self.first_lin = nn.Linear(in_dim, out_dim)
+        self.tanh = nn.Tanh()
+        self.second_lin = nn.Linear(in_dim, out_dim)
+        self.sigmoid = nn.Sigmoid()
+
+
+    def forward(self, x):
+
+        y_hat = self.tanh(self.first_lin(x))
+        g = self.sigmoid(self.second_lin(x))
+        y = y_hat * g
+
+        return y
+
 
 class GCN(nn.Module):
     def __init__(self, nfeat, nhid, nclass, dropout):
@@ -11,9 +33,9 @@ class GCN(nn.Module):
         #self.gc1 = GraphConvolution(nfeat, nhid)
         #self.gc2 = GraphConvolution(nhid, nclass)
 
-        self.gc1_h1 = nn.Linear(nfeat, nhid)
-        self.gc1_h2 = nn.Linear(nfeat, nhid)
-        self.joint = nn.Linear(nhid*2, nhid)
+        self.gc1_h1 = FCNet([nfeat, nhid//2])
+        self.gc1_h2 = FCNet([nfeat, nhid//2])
+        self.joint = nn.Linear(nhid//2, nhid)
 
         self.gc2 = GraphConvolution(nhid, nclass)
 
