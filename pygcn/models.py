@@ -93,7 +93,7 @@ class GCN(nn.Module):
         #conv1 = conv1.contiguous().view(-1, x.size(-1))
         #conv2 = conv2.contiguous().view(-1, x.size(-1))
 
-        edge_feat = torch.cat([conv1, conv2], -1)
+        edge_feat = torch.cat([conv2, conv1 ], -1)
         edge_feat = self.confidence(edge_feat)
 
         #scores = edge_feat.masked_fill(edge_feat > 0, 1).squeeze()
