@@ -8,16 +8,17 @@ class GCN(nn.Module):
     def __init__(self, nfeat, nhid, nclass, dropout):
         super(GCN, self).__init__()
 
-        self.gc1 = GraphConvolution(nfeat, nhid)
-        self.gc_e = GraphConvolution_edge(nhid*2, nhid)
-        self.gc_e2 = GraphConvolution_edge(nhid*2, nhid)
-        self.gc_e3 = GraphConvolution_edge(nhid*4, nhid)
-        self.gc3 = GraphConvolution(nhid, nhid)
-        self.gc2 = GraphConvolution(nhid*2, nclass)
-        self.emb = nn.Linear(nfeat, nhid)
-        self.joint = nn.Linear(nhid + nfeat, nhid)
+        #self.gc1 = GraphConvolution(nfeat, nhid)
+        #self.gc2 = GraphConvolution(nhid, nclass)
+
+        self.gc1_h1 = nn.Linear(nfeat, nhid//2)
+        self.gc1_h2 = nn.Linear(nfeat, nhid//2)
+
+        self.gc2 = GraphConvolution(nhid, nclass)
+
+
+
         self.dropout = dropout
-        self.convtry = nn.Conv2d(nhid*2, nhid, [14, 14], 1, 0, bias=False)
 
     def forward1(self, x, adj, adj1, fully_connected_graph):
         '''x_init = self.emb(x)
@@ -56,53 +57,17 @@ class GCN(nn.Module):
         return F.log_softmax(x, dim=1)'''
 
     def forward(self, x_init, adj, adj1, fully_connected_graph):
-        #x_init = torch.tanh(self.emb(x_init))
 
-        #making edge features
-        '''conv1 = x_init.unsqueeze(1).expand(adj.size(0), adj.size(0), x_init.size(-1))
-        conv2 = x_init.unsqueeze(0).expand(adj.size(0), adj.size(0), x_init.size(-1))
-        conv1 = conv1.contiguous().view(-1, x_init.size(-1))
-        conv2 = conv2.contiguous().view(-1, x_init.size(-1))
+        out1 = self.gc1_h1(x_init)
+        out1 = torch.mm(adj1, out1)
+        out2 = self.gc1_h2(x_init)
+        out2 = torch.mm(adj1, out2)
 
-        edge_feat = torch.cat([conv1, conv2], -1)
+        x = torch.cat([out1, out2], -1)
 
-        x_e = F.relu(self.gc_e(edge_feat, adj1))
-        x_e = F.dropout(x_e, self.dropout, training=self.training)'''
-
-
-        x = F.relu(self.gc1(x_init, adj1))
+        x = F.relu(x)
         x = F.dropout(x, self.dropout, training=self.training)
 
-        '''x_e = F.relu(self.gc3(x, adj1))
-        x_e = F.dropout(x_e, self.dropout, training=self.training)'''
-
-
-        #x = torch.cat([x_init, x], -1)
-        #x = x + x_init
-
-        conv1 = x.unsqueeze(1).expand(adj.size(0), adj.size(0), x.size(-1))
-        conv2 = x.unsqueeze(0).expand(adj.size(0), adj.size(0), x.size(-1))
-        '''conv1 = conv1.contiguous().view(-1, x.size(-1))
-        conv2 = conv2.contiguous().view(-1, x.size(-1))
-
-        edge_feat = torch.cat([conv1, conv2], -1)
-        x_e = torch.tanh(self.gc_e2(edge_feat, adj1))
-        x_e = F.dropout(x_e, self.dropout, training=self.training)'''
-
-        total_feat = torch.cat([conv1, conv2], -1)
-        adj_exp = adj1.unsqueeze(-1).expand(adj1.size(0), adj1.size(0), total_feat.size(-1))
-        total_feat = (total_feat * adj_exp).transpose(0,-1)
-        total_feat = self.convtry(total_feat.unsqueeze(0))
-        total_feat = torch.sum(torch.sum(total_feat, -1).squeeze(),-1)
-
-        total_feat = total_feat.expand(adj1.size(0), total_feat.size(-1))
-        #print('total_feat ', total_feat.size())
-        x = self.gc2(torch.cat([x,  total_feat],-1), adj1)
-
-
-
-
-
-        #x = self.gc2(torch.cat([x,  x_e],-1), adj1)
+        x = self.gc2(x, adj1)
         return F.log_softmax(x, dim=1)
 
