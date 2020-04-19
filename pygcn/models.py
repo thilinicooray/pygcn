@@ -17,6 +17,9 @@ class GCN(nn.Module):
         self.gc2_h1 = nn.Linear(nhid//2, nclass)
         self.gc2_h2 = nn.Linear(nhid//2, nclass)
 
+        self.tanh = nn.Tanh()
+        self.sigmoid = nn.Sigmoid()
+
 
         self.dropout = dropout
 
@@ -63,9 +66,9 @@ class GCN(nn.Module):
         out2 = self.gc1_h2(x_init)
         out2 = torch.mm(adj1, out2)
 
-        x = out1 * out2
+        x = self.tanh(out1) * self.sigmoid(out2)
 
-        x = F.relu(x)
+        #x = F.relu(x)
         x = F.dropout(x, self.dropout, training=self.training)
 
         #x = self.gc2(x, adj1)
@@ -73,7 +76,7 @@ class GCN(nn.Module):
         out1 = torch.mm(adj1, out1)
         out2 = self.gc2_h2(x)
         out2 = torch.mm(adj1, out2)
-        x = out1 * out2
+        x = self.tanh(out1) * self.sigmoid(out2)
 
         return F.log_softmax(x, dim=1)
 
