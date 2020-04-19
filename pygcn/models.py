@@ -101,6 +101,8 @@ class GCN(nn.Module):
 
         #adj1 = adj1
 
+        x = torch.cat([x, x_init], -1)
+
         x = self.gc2(x, adj1_org)
 
         return F.log_softmax(x, dim=1)
