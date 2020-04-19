@@ -14,8 +14,8 @@ class GCN(nn.Module):
         self.gc1_h1 = nn.Linear(nfeat, nhid//2)
         self.gc1_h2 = nn.Linear(nfeat, nhid//2)
 
-        self.gc2 = GraphConvolution(nhid//2, nclass)
-
+        self.gc2_h1 = nn.Linear(nhid//2, nclass)
+        self.gc2_h2 = nn.Linear(nhid//2, nclass)
 
 
         self.dropout = dropout
@@ -68,6 +68,12 @@ class GCN(nn.Module):
         x = F.relu(x)
         x = F.dropout(x, self.dropout, training=self.training)
 
-        x = self.gc2(x, adj1)
+        #x = self.gc2(x, adj1)
+        out1 = self.gc2_h1(x)
+        out1 = torch.mm(adj1, out1)
+        out2 = self.gc2_h2(x)
+        out2 = torch.mm(adj1, out2)
+        x = out1 * out2
+
         return F.log_softmax(x, dim=1)
 
