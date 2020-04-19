@@ -80,18 +80,18 @@ class GCN(nn.Module):
         x = F.relu(self.gc1(x_init, adj))
         x = F.dropout(x, self.dropout, training=self.training)
 
-        if self.training:
+        #if self.training:
 
-            conv1 = x.unsqueeze(1).expand(adj.size(0), adj.size(0), x.size(-1))
-            conv2 = x.unsqueeze(0).expand(adj.size(0), adj.size(0), x.size(-1))
-            #conv1 = conv1.contiguous().view(-1, x.size(-1))
-            #conv2 = conv2.contiguous().view(-1, x.size(-1))
+        conv1 = x.unsqueeze(1).expand(adj.size(0), adj.size(0), x.size(-1))
+        conv2 = x.unsqueeze(0).expand(adj.size(0), adj.size(0), x.size(-1))
+        #conv1 = conv1.contiguous().view(-1, x.size(-1))
+        #conv2 = conv2.contiguous().view(-1, x.size(-1))
 
-            edge_feat = torch.cat([conv1, conv2], -1)
-            edge_feat = self.confidence(edge_feat)
+        edge_feat = torch.cat([conv1, conv2], -1)
+        edge_feat = self.confidence(edge_feat)
 
-            scores = edge_feat.masked_fill(edge_feat > 0, 1).squeeze()
-            adj1 = adj1 * scores
+        scores = edge_feat.masked_fill(edge_feat > 0, 1).squeeze()
+        adj1 = adj1 * scores
 
         x = self.gc2(x, adj1)
 
