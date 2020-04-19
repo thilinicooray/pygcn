@@ -99,7 +99,7 @@ class GCN(nn.Module):
         scores = edge_feat.masked_fill(edge_feat > 0, 1).squeeze()
         adj1 = adj1 * scores
 
-        x = F.relu(self.gc3(x, adj1))
+        x = self.gc3(x, adj1)
         x = F.dropout(x, self.dropout, training=self.training)
 
         conv1 = x.unsqueeze(1).expand(adj.size(0), adj.size(0), x.size(-1))
