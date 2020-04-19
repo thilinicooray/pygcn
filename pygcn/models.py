@@ -35,7 +35,7 @@ class GCN(nn.Module):
 
         self.gc1_h1 = FCNet([nfeat, nhid//2])
         self.gc1_h2 = FCNet([nfeat, nhid//2])
-        self.joint = nn.Linear(nhid//2, nhid)
+        self.joint = nn.Linear(nhid, nhid)
 
         self.gc2 = GraphConvolution(nhid, nclass)
 
