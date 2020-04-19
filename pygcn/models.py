@@ -88,9 +88,8 @@ class GCN(nn.Module):
         edge_feat = torch.cat([conv1, conv2], -1)
         edge_feat = self.confidence(edge_feat)
 
-        print(edge_feat.size())
-        scores = edge_feat.masked_fill(edge_feat > 0, 1)
-        print('scores ', scores.size(), scores[:10] )
+        scores = edge_feat.masked_fill(edge_feat > 0, 1).squeeze()
+        adj1 = adj1 * scores
 
         x = self.gc2(x, adj1)
 
