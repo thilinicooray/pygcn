@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from pygcn.layers import GraphConvolution, GraphConvolution_edge
-from torch.nn.utils.weight_norm import weight_norm
 
 
 class GCN(nn.Module):
@@ -12,15 +11,11 @@ class GCN(nn.Module):
         #self.gc1 = GraphConvolution(nfeat, nhid)
         #self.gc2 = GraphConvolution(nhid, nclass)
 
-        self.gc1_h1 = weight_norm(nn.Linear(nfeat, nhid), dim=None)
-        self.gc1_h2 = weight_norm(nn.Linear(nfeat, nhid), dim=None)
+        self.gc1_h1 = nn.Linear(nfeat, nhid)
+        self.gc1_h2 = nn.Linear(nfeat, nhid)
+        self.joint = nn.Linear(nhid*2, nhid)
 
-        self.gc2_h1 = nn.Linear(nhid, nclass)
-        self.gc2_h2 = nn.Linear(nhid, nclass)
-
-        self.tanh = nn.Tanh()
-        self.sigmoid = nn.Sigmoid()
-
+        self.gc2 = GraphConvolution(nhid, nclass)
 
         self.dropout = dropout
 
@@ -67,17 +62,12 @@ class GCN(nn.Module):
         out2 = self.gc1_h2(x_init)
         out2 = torch.mm(adj1, out2)
 
-        x = self.tanh(out1) * self.sigmoid(out2)
+        x = self.joint(torch.cat([out1, out2], -1))
 
-        #x = F.relu(x)
+        x = F.relu(x)
         x = F.dropout(x, self.dropout, training=self.training)
 
-        #x = self.gc2(x, adj1)
-        out1 = self.gc2_h1(x)
-        out1 = torch.mm(adj1, out1)
-        out2 = self.gc2_h2(x)
-        out2 = torch.mm(adj1, out2)
-        x = self.tanh(out1) * self.sigmoid(out2)
+        x = self.gc2(x, adj1)
 
         return F.log_softmax(x, dim=1)
 
