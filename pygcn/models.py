@@ -35,7 +35,7 @@ class GCN(nn.Module):
         self.gc2 = GraphConvolution(nhid + nfeat, nclass)
 
         self.confidence = nn.Sequential(nn.Linear(nhid*2, nhid//2),
-                                        
+
                                         )
 
 
@@ -92,7 +92,8 @@ class GCN(nn.Module):
         edge_feat = torch.cat([conv1, conv2], -1)
 
         edge_feat = self.confidence(edge_feat)
-        print('edge_feat ', edge_feat[0,0,:10], adj1_org[0,:10])
+        edge_feat = torch.sum(edge_feat, -1)
+        print('edge_feat ', edge_feat[0,:10], adj1_org[0,:10])
 
 
         scores = edge_feat.masked_fill(edge_feat > 0, 1).squeeze()
