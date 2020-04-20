@@ -164,6 +164,7 @@ for k in range(10):
     best = 0
     best_epoch = 0
     for epoch in range(args.epochs):
+        print('epoch ', epoch)
         acc_values.append(train(epoch))
 
         torch.save(model.state_dict(), '{}.pkl'.format(epoch))
