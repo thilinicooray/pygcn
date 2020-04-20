@@ -95,9 +95,9 @@ class GCN(nn.Module):
         #conv2 = conv2.contiguous().view(-1, x.size(-1))
 
         edge_feat = torch.cat([conv1, conv2], -1)
-        print('edge_feat ', edge_feat[0,0,:10], adj1_org[0,:10])
-        edge_feat = self.confidence(edge_feat)
 
+        edge_feat = self.confidence(edge_feat)
+        print('edge_feat ', edge_feat[0,0,:10], adj1_org[0,:10])
 
 
         scores = edge_feat.masked_fill(edge_feat > 0, 1).squeeze()
