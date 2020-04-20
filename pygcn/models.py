@@ -82,6 +82,8 @@ class GCN(nn.Module):
 
         x = F.relu(self.gc1(x_init, adj1_org))
         x = F.dropout(x, self.dropout, training=self.training)
+        print('node_feat ', x[:3,:10])
+
 
         #if self.training:
 
@@ -93,7 +95,7 @@ class GCN(nn.Module):
         edge_feat = torch.cat([conv1, conv2], -1)
         edge_feat = self.confidence(edge_feat)
 
-        print('edge_feat ', edge_feat[:3,:10])
+        #print('edge_feat ', edge_feat[:3,:10])
 
         scores = edge_feat.masked_fill(edge_feat > 0, 1).squeeze()
         adj1 = adj1_org * scores
