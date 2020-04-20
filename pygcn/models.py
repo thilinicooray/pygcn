@@ -35,9 +35,9 @@ class GCN(nn.Module):
         self.gc2 = GraphConvolution(nhid + nfeat, nclass)
 
         self.confidence = nn.Sequential(nn.Linear(nhid*2, nhid),
-                                        nn.Tanh(),
+
                                         nn.Linear(nhid, 1),
-                                        nn.Tanh(),
+                                        
                                         )
 
         self.confidence2 = nn.Sequential(nn.Linear(nhid*2, nhid),
