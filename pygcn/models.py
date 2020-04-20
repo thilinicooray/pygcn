@@ -34,11 +34,15 @@ class GCN(nn.Module):
         self.gc3 = GraphConvolution(nhid, nhid)
         self.gc2 = GraphConvolution(nhid + nfeat, nclass)
 
-        self.confidence = nn.Sequential(nn.Linear(nhid*2, nhid//2),
+        self.confidence = nn.Sequential(nn.Linear(nhid*2, nhid),
+                                        nn.ReLU(),
+                                        nn.Linear(nhid, 1),
+                                        nn.Tanh())
 
-                                        )
-
-
+        self.confidence2 = nn.Sequential(nn.Linear(nhid*2, nhid),
+                                        nn.ReLU(),
+                                        nn.Linear(nhid, 1),
+                                        nn.Sigmoid())
         self.dropout = dropout
 
     def forward1(self, x, adj, adj1, fully_connected_graph):
@@ -79,7 +83,7 @@ class GCN(nn.Module):
 
     def forward(self, x_init, adj, adj1_org, fully_connected_graph):
 
-        x = torch.tanh(self.gc1(x_init, adj1_org))
+        x = F.relu(self.gc1(x_init, adj1_org))
         x = F.dropout(x, self.dropout, training=self.training)
 
         #if self.training:
@@ -90,11 +94,9 @@ class GCN(nn.Module):
         #conv2 = conv2.contiguous().view(-1, x.size(-1))
 
         edge_feat = torch.cat([conv1, conv2], -1)
-
         edge_feat = self.confidence(edge_feat)
-        edge_feat = torch.sum(edge_feat, -1)
-        print('edge_feat ', edge_feat[0,:10], adj1_org[0,:10])
 
+        print('edge_feat ', edge_feat[0,:10], adj1_org[0,:10])
 
         scores = edge_feat.masked_fill(edge_feat > 0, 1).squeeze()
         adj1 = adj1_org * scores
