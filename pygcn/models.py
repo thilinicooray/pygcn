@@ -35,15 +35,10 @@ class GCN(nn.Module):
         self.gc2 = GraphConvolution(nhid + nfeat, nclass)
 
         self.confidence = nn.Sequential(nn.Linear(nhid*2, nhid),
-
                                         nn.Linear(nhid, 1),
-                                        
                                         )
 
-        self.confidence2 = nn.Sequential(nn.Linear(nhid*2, nhid),
-                                        nn.ReLU(),
-                                        nn.Linear(nhid, 1),
-                                        nn.Sigmoid())
+
         self.dropout = dropout
 
     def forward1(self, x, adj, adj1, fully_connected_graph):
