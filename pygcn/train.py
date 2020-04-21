@@ -138,6 +138,7 @@ for k in range(10):
         optimizer.zero_grad()
         recovered, mu, logvar, output = model(features, adj1)
         node_cls_loss_train = F.nll_loss(output[idx_train], labels[idx_train])
+        print('labels ', labels[idx_train], adj1[idx_train])
         ae_loss = loss_function(preds=recovered[idx_train], labels=adj1[idx_train],
                              mu=mu, logvar=logvar, n_nodes=features.shape[0])
         #print('losses ', node_cls_loss_train, ae_loss)
