@@ -32,6 +32,7 @@ class GCNModelVAE(nn.Module):
         self.gc3 = GraphConvolution(hidden_dim1, hidden_dim2, dropout, act=lambda x: x)
         self.dc = InnerProductDecoder(dropout, act=lambda x: x)
 
+        self.gc2_1 = GraphConvolution(input_feat_dim, hidden_dim1, dropout, act=F.relu)
         self.gc_class = GraphConvolution(hidden_dim1, nclass)
 
     def encode(self, x, adj):
@@ -49,7 +50,10 @@ class GCNModelVAE(nn.Module):
     def forward(self, x, adj):
         mu, logvar, classifier = self.encode(x, adj)
         z = self.reparameterize(mu, logvar)
-        return self.dc(z), mu, logvar, F.log_softmax(classifier, dim=1)
+        pred_a = self.dc(z)
+        print('pred a size ', pred_a.size())
+
+        return pred_a, mu, logvar, F.log_softmax(classifier, dim=1)
 
 
 class InnerProductDecoder(nn.Module):
