@@ -139,7 +139,7 @@ for k in range(1):
         recovered, mu, logvar, output = model(features, adj1)
         node_cls_loss_train = F.nll_loss(output[idx_train], labels[idx_train])
         ae_loss = loss_function(preds=recovered, labels=adj1,
-                             mu=mu, logvar=logvar, n_nodes=features.size[0])
+                             mu=mu, logvar=logvar, n_nodes=features.shape[0])
 
         loss_train = node_cls_loss_train + ae_loss
         acc_train = accuracy(output[idx_train], labels[idx_train])
