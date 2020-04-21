@@ -47,7 +47,7 @@ parser.add_argument('--epochs', type=int, default=800, help='Number of epochs to
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
-#np.random.seed(args.seed)
+np.random.seed(args.seed)
 torch.manual_seed(args.seed)
 if args.cuda:
     torch.cuda.manual_seed(args.seed)
@@ -138,7 +138,7 @@ for k in range(10):
         optimizer.zero_grad()
         recovered, mu, logvar, output = model(features, adj1)
         node_cls_loss_train = F.nll_loss(output[idx_train], labels[idx_train])
-        ae_loss = loss_function(preds=recovered, labels=adj1,
+        ae_loss = loss_function(preds=recovered[idx_train], labels=adj1[idx_train],
                              mu=mu, logvar=logvar, n_nodes=features.shape[0])
         #print('losses ', node_cls_loss_train, ae_loss)
         loss_train = node_cls_loss_train + 0.5*ae_loss
@@ -169,7 +169,7 @@ for k in range(10):
         model.eval()
         recovered, mu, logvar, output = model(features, adj1)
         loss_test = F.nll_loss(output[idx_test], labels[idx_test])
-        loss_ae = loss_function(preds=recovered, labels=adj1,
+        loss_ae = loss_function(preds=recovered[idx_test], labels=adj1[idx_test],
                                 mu=mu, logvar=logvar, n_nodes=features.shape[0])
         acc_test = accuracy(output[idx_test], labels[idx_test])
         print("Test set results:",
