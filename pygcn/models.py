@@ -52,9 +52,7 @@ class GCNModelVAE(nn.Module):
         z = self.reparameterize(mu, logvar)
         pred_a = self.dc(z)
 
-        hidde2 = self.gc2_1(layer1rep, pred_a)
-
-        classifier = self.gc_class(layer1rep + hidde2, adj + pred_a)
+        classifier = self.gc_class(layer1rep, adj)
 
         return pred_a, mu, logvar, F.log_softmax(classifier, dim=1)
 
