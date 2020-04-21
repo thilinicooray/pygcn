@@ -53,7 +53,7 @@ class GCNModelVAE(nn.Module):
         pred_a = self.dc(z)
 
         hidden2 = self.gc2_1(x, F.softmax(pred_a, dim=-1))
-        classifier = self.gc_class(layer1rep + hidden2, adj + pred_a)
+        classifier = self.gc_class(layer1rep * hidden2, adj * pred_a)
 
         return pred_a, mu, logvar, F.log_softmax(classifier, dim=1)
 
