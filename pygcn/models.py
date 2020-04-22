@@ -32,7 +32,7 @@ class GCNModelVAE(nn.Module):
         self.gc3 = GraphConvolution(hidden_dim1, hidden_dim2, dropout, act=lambda x: x)
         self.dc = InnerProductDecoder(dropout, act=lambda x: x)
 
-        self.gc2_1 = GraphConvolution(hidden_dim1, hidden_dim1, dropout, act=F.relu)
+        self.gc2_1 = GraphConvolution(hidden_dim1 + input_feat_dim, hidden_dim1, dropout, act=F.relu)
         self.gc_class = GraphConvolution(hidden_dim1, nclass)
 
     def encode(self, x, adj):
@@ -57,7 +57,7 @@ class GCNModelVAE(nn.Module):
         masked_adj = torch.where(adj > 0, pred_a, zero_vec)
         new_adj = F.softmax(masked_adj, dim=1)
 
-        hidden2 = self.gc2_1(z + layer1rep, new_adj)
+        hidden2 = self.gc2_1(torch.cat([x, layer1rep], -1), new_adj)
         classifier = self.gc_class(hidden2, new_adj)
 
         return pred_a, mu, logvar, F.log_softmax(classifier, dim=1)
