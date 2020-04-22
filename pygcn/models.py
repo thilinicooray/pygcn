@@ -65,14 +65,14 @@ class GCNModelVAE(nn.Module):
         hidden2 = self.gc2_1(layer1rep, new_adj)
 
         #print('second rep ', hidden2[:3,:10])
-        mu = self.gc2_2(hidden2, new_adj)
+        '''mu = self.gc2_2(hidden2, new_adj)
         logvar = self.gc2_3(hidden2, new_adj)
         z = self.reparameterize(mu, logvar)
-        pred_a = self.dc1(z)
+        pred_a = self.dc1(z)'''
 
         classifier = self.gc_class(hidden2, new_adj )
 
-        return pred_a, mu, logvar, F.log_softmax(classifier, dim=1)
+        return new_adj, mu, logvar, F.log_softmax(classifier, dim=1)
 
 
 class InnerProductDecoder(nn.Module):
