@@ -70,7 +70,7 @@ class GCNModelVAE(nn.Module):
         logvar = self.gc2_3(hidden2, new_adj)
         z = self.reparameterize(mu, logvar)
         pred_a = self.dc1(z)'''
-        hidden2 = self.gc2_1(layer1rep, adj)
+        hidden2 = self.gc2_1(layer1rep, adj.T)
 
         classifier = self.gc_class(hidden2, adj)
 
