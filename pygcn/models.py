@@ -41,7 +41,7 @@ class GCNModelVAE(nn.Module):
             nn.Linear(2708, hidden_dim2, bias=False),
             nn.ReLU(inplace=True),
             nn.Linear(hidden_dim2, input_feat_dim, bias=False),
-            nn.Sigmoid()
+            nn.ReLU(inplace=True)
         )
         self.gc_class = GraphConvolution(hidden_dim1, nclass)
 
