@@ -61,8 +61,8 @@ class GCNModelVAE(nn.Module):
         new_adj = F.softmax(masked_adj, dim=1)
 
         hidden2 = self.gc2_1(torch.cat([x, layer1rep], -1), new_adj)
-        mu = self.gc2_2(torch.cat([x, layer1rep], -1), new_adj)
-        logvar = self.gc2_3(torch.cat([x, layer1rep], -1), new_adj)
+        mu = self.gc2_2(hidden2, new_adj)
+        logvar = self.gc2_3(hidden2, new_adj)
         z = self.reparameterize(mu, logvar)
         pred_a = self.dc1(z)
 
