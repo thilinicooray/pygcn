@@ -40,7 +40,8 @@ class GCNModelVAE(nn.Module):
 
     def encode(self, x, adj):
         hidden1 = self.gc1(x, adj)
-        return self.gc2(hidden1, adj), self.gc3(hidden1, adj), hidden1
+        #return self.gc2(hidden1, adj), self.gc3(hidden1, adj), hidden1
+        return hidden1
 
     def reparameterize(self, mu, logvar):
         if self.training:
@@ -51,9 +52,9 @@ class GCNModelVAE(nn.Module):
             return mu
 
     def forward(self, x, adj):
-        mu, logvar, layer1rep = self.encode(x, adj)
-        z = self.reparameterize(mu, logvar)
-        pred_a1 = self.dc(z)
+        layer1rep = self.encode(x, adj)
+        #z = self.reparameterize(mu, logvar)
+        pred_a1 = self.dc(layer1rep)
 
         #get masked new adj
         zero_vec = -9e15*torch.ones_like(pred_a1)
