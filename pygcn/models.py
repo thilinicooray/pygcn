@@ -33,7 +33,7 @@ class GCNModelVAE(nn.Module):
         self.dc = InnerProductDecoder(dropout, act=lambda x: x)
         self.dc1 = InnerProductDecoder(dropout, act=lambda x: x)
 
-        self.gc2_1 = GraphConvolution(hidden_dim1 + input_feat_dim, hidden_dim1, dropout, act=F.relu)
+        self.gc2_1 = GraphConvolution(input_feat_dim, hidden_dim1, dropout, act=F.relu)
         self.gc2_2 = GraphConvolution(hidden_dim1, hidden_dim2, dropout, act=lambda x: x)
         self.gc2_3 = GraphConvolution(hidden_dim1, hidden_dim2, dropout, act=lambda x: x)
 
