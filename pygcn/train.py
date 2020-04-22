@@ -136,13 +136,14 @@ for k in range(10):
 
         model.train()
         optimizer.zero_grad()
-        recovered, mu, logvar, output = model(features, adj1)
+        noderegen, recovered, mu, logvar, output = model(features, adj1)
         node_cls_loss_train = F.nll_loss(output[idx_train], labels[idx_train])
-        '''ae_loss = loss_function(preds=recovered[idx_train], labels=adj1[idx_train],
+        ae_loss = loss_function(preds=recovered[idx_train], labels=adj1[idx_train],
                              mu=mu[idx_train], logvar=logvar[idx_train], n_nodes=features.shape[0])
+        node_ae_loss = loss_function(preds=noderegen[idx_train], labels=features[idx_train],
+                                mu=mu[idx_train], logvar=logvar[idx_train], n_nodes=features.shape[0])
         #print('losses ', node_cls_loss_train, ae_loss)
-        loss_train = node_cls_loss_train + 0.1*ae_loss'''
-        loss_train = node_cls_loss_train
+        loss_train = node_cls_loss_train + 0.1*ae_loss + 0.1*node_ae_loss
         acc_train = accuracy(output[idx_train], labels[idx_train])
         loss_train.backward()
         optimizer.step()
@@ -152,7 +153,7 @@ for k in range(10):
             # deactivates dropout during validation run.
             model.eval()
             with torch.no_grad():
-                recovered, mu, logvar, output = model(features, adj1)
+                noderegen, recovered, mu, logvar, output = model(features, adj1)
 
         loss_val = F.nll_loss(output[idx_val], labels[idx_val])
         acc_val = accuracy(output[idx_val], labels[idx_val])
@@ -170,7 +171,7 @@ for k in range(10):
     def compute_test():
         model.eval()
         with torch.no_grad():
-            recovered, mu, logvar, output = model(features, adj1)
+            noderegen, recovered, mu, logvar, output = model(features, adj1)
             loss_test = F.nll_loss(output[idx_test], labels[idx_test])
             loss_ae = loss_function(preds=recovered[idx_test], labels=adj1[idx_test],
                                     mu=mu[idx_test], logvar=logvar[idx_test], n_nodes=features.shape[0])
