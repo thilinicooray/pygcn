@@ -55,7 +55,7 @@ class GCNModelVAE(nn.Module):
         z = self.reparameterize(mu, logvar)
         pred_a1 = self.dc(z)
 
-        print('first rep ', layer1rep[:3,:10])
+        #print('first rep ', layer1rep[:3,:10])
 
         #get masked new adj
         zero_vec = -9e15*torch.ones_like(pred_a1)
@@ -68,7 +68,7 @@ class GCNModelVAE(nn.Module):
         hidden2 = F.normalize(mfb_sign_sqrt)
 
 
-        print('second rep ', hidden2[:3,:10])
+        #print('second rep ', hidden2[:3,:10])
         mu = self.gc2_2(hidden2, new_adj)
         logvar = self.gc2_3(hidden2, new_adj)
         z = self.reparameterize(mu, logvar)
