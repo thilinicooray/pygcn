@@ -33,7 +33,7 @@ class GCNModelVAE(nn.Module):
         self.dc = InnerProductDecoder(dropout, act=lambda x: x)
         self.dc1 = InnerProductDecoder(dropout, act=lambda x: x)
 
-        self.gc2_1 = GraphConvolution(hidden_dim1 + input_feat_dim, hidden_dim1, dropout, act=F.relu)
+        self.gc2_1 = GraphConvolution(hidden_dim1, hidden_dim1, dropout, act=F.relu)
         self.gc2_2 = GraphConvolution(hidden_dim1, hidden_dim2, dropout, act=lambda x: x)
         self.gc2_3 = GraphConvolution(hidden_dim1, hidden_dim2, dropout, act=lambda x: x)
         self.gc_class = GraphConvolution(hidden_dim1, nclass)
@@ -62,7 +62,7 @@ class GCNModelVAE(nn.Module):
         masked_adj = torch.where(adj > 0, pred_a1, zero_vec)
         new_adj = F.softmax(masked_adj, dim=1)
 
-        hidden2 = self.gc2_1(torch.cat([x, layer1rep], -1), new_adj)
+        hidden2 = self.gc2_1(layer1rep, new_adj)
 
         #print('second rep ', hidden2[:3,:10])
         mu = self.gc2_2(hidden2, new_adj)
