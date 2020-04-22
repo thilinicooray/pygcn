@@ -98,7 +98,7 @@ class GCNModelVAE(nn.Module):
         a2 = F.softmax(masked_nodes, dim=1)
 
 
-        mu, logvar,  mu_n, var_n, hidden3 = self.encode(torch.cat([a2,hidden1 + hidden2],-1), adj + adj1 + adj2, self.gc3_1, self.gc2, self.gc3, self.gc4, self.gc5)
+        mu, logvar,  mu_n, var_n, hidden3 = self.encode(torch.cat([a1+a2,hidden1 + hidden2],-1), adj + adj1 + adj2, self.gc3_1, self.gc2, self.gc3, self.gc4, self.gc5)
         z = self.reparameterize(mu, logvar)
         z_n = self.reparameterize(mu_n, var_n)
         adj3 = self.dc(z)
@@ -114,7 +114,7 @@ class GCNModelVAE(nn.Module):
         masked_nodes = torch.where(x > 0, a3, zero_vec)
         a3 = F.softmax(masked_nodes, dim=1)
 
-        mu, logvar,  mu_n, var_n, hidden4 = self.encode(torch.cat([a3,hidden1 + hidden2+hidden3],-1), adj + adj1 + adj2+adj3, self.gc4_1, self.gc2, self.gc3, self.gc4, self.gc5)
+        mu, logvar,  mu_n, var_n, hidden4 = self.encode(torch.cat([a1+a2 +a3,hidden1 + hidden2+hidden3],-1), adj + adj1 + adj2+adj3, self.gc4_1, self.gc2, self.gc3, self.gc4, self.gc5)
         z = self.reparameterize(mu, logvar)
         z_n = self.reparameterize(mu_n, var_n)
         adj4 = self.dc(z)
@@ -130,7 +130,7 @@ class GCNModelVAE(nn.Module):
         masked_nodes = torch.where(x > 0, a4, zero_vec)
         a4 = F.softmax(masked_nodes, dim=1)
 
-        mu, logvar,  mu_n, var_n, hidden5 = self.encode(torch.cat([a4,hidden1 + hidden2+hidden3+hidden4],-1), adj + adj1 + adj2+adj3+adj4, self.gc5_1, self.gc2, self.gc3, self.gc4, self.gc5)
+        mu, logvar,  mu_n, var_n, hidden5 = self.encode(torch.cat([a1+a2 +a3 +a4,hidden1 + hidden2+hidden3+hidden4],-1), adj + adj1 + adj2+adj3+adj4, self.gc5_1, self.gc2, self.gc3, self.gc4, self.gc5)
         z = self.reparameterize(mu, logvar)
         z_n = self.reparameterize(mu_n, var_n)
         adj5 = self.dc(z)
@@ -146,7 +146,7 @@ class GCNModelVAE(nn.Module):
         masked_nodes = torch.where(x > 0, a5, zero_vec)
         a5 = F.softmax(masked_nodes, dim=1)
 
-        mu, logvar,  mu_n, var_n, hidden6 = self.encode(torch.cat([a5,hidden1 + hidden2+hidden3 + hidden4 + hidden5],-1), adj + adj1 + adj2+adj3+adj4+adj5, self.gc6_1, self.gc2, self.gc3, self.gc4, self.gc5)
+        mu, logvar,  mu_n, var_n, hidden6 = self.encode(torch.cat([a1+a2 +a3 +a4 +a5,hidden1 + hidden2+hidden3 + hidden4 + hidden5],-1), adj + adj1 + adj2+adj3+adj4+adj5, self.gc6_1, self.gc2, self.gc3, self.gc4, self.gc5)
         z = self.reparameterize(mu, logvar)
         z_n = self.reparameterize(mu_n, var_n)
         adj6 = self.dc(z)
@@ -162,7 +162,7 @@ class GCNModelVAE(nn.Module):
         masked_nodes = torch.where(x > 0, a6, zero_vec)
         a6 = F.softmax(masked_nodes, dim=1)
 
-        mu, logvar,  mu_n, var_n, hidden7 = self.encode(torch.cat([a6,hidden1 + hidden2+hidden3 + hidden4 + hidden5+hidden6],-1), adj + adj1 + adj2+adj3+adj4+adj5+adj6, self.gc7_1, self.gc2, self.gc3, self.gc4, self.gc5)
+        mu, logvar,  mu_n, var_n, hidden7 = self.encode(torch.cat([a1+a2 +a3 +a4 +a5+a6,hidden1 + hidden2+hidden3 + hidden4 + hidden5+hidden6],-1), adj + adj1 + adj2+adj3+adj4+adj5+adj6, self.gc7_1, self.gc2, self.gc3, self.gc4, self.gc5)
         z = self.reparameterize(mu, logvar)
         z_n = self.reparameterize(mu_n, var_n)
         adj7 = self.dc(z)
@@ -178,7 +178,7 @@ class GCNModelVAE(nn.Module):
         masked_nodes = torch.where(x > 0, a7, zero_vec)
         a7 = F.softmax(masked_nodes, dim=1)
 
-        classifier = self.gc_class(torch.cat([a7,hidden1 + hidden2 + hidden3+ hidden4 + hidden5+hidden6 + hidden7],-1), adj + adj1 + adj2 + adj3+adj4+adj5+adj6 + adj7)
+        classifier = self.gc_class(torch.cat([a1+a2 +a3 +a4 +a5+a6 +a7,hidden1 + hidden2 + hidden3+ hidden4 + hidden5+hidden6 + hidden7],-1), adj + adj1 + adj2 + adj3+adj4+adj5+adj6 + adj7)
 
         return a1+a2+a3 + a4+a5+a6+a7, adj1 + adj2+ adj3+adj4+adj5+adj6 + adj7, mu, logvar, mu_n, var_n, F.log_softmax(classifier, dim=1)
 
