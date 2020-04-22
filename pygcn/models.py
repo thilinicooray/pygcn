@@ -63,8 +63,8 @@ class GCNModelVAE(nn.Module):
 
     def forward(self, x, adj):
         mu, logvar, hidden1 = self.encode(x, adj, self.gc1, self.gc2, self.gc3)
-        z1 = self.reparameterize(mu, logvar)
-        adj1 = self.dc(z1)
+        z = self.reparameterize(mu, logvar)
+        adj1 = self.dc(z)
 
 
         #get masked new adj
@@ -72,19 +72,22 @@ class GCNModelVAE(nn.Module):
         masked_adj = torch.where(adj > 0, adj1, zero_vec)
         adj1 = F.softmax(masked_adj, dim=1)
 
-        mu, logvar, hidden2 = self.encode(hidden1, adj + adj1, self.gc2_1, self.gc2, self.gc3)
-        z2 = self.reparameterize(mu, logvar)
-        adj2 = self.dc(z1+ z2)
+        a  = torch.spmm(adj1.t(), z)
+
+        mu, logvar, hidden2 = self.encode(a + hidden1, adj + adj1, self.gc2_1, self.gc2, self.gc3)
+        z = self.reparameterize(mu, logvar)
+        adj2 = self.dc(z)
 
 
         #get masked new adj
         zero_vec = -9e15*torch.ones_like(adj2)
         masked_adj = torch.where(adj > 0, adj2, zero_vec)
         adj2 = F.softmax(masked_adj, dim=1)
+        a  = torch.spmm(adj2.t(), z)
 
-        mu, logvar, hidden3 = self.encode(hidden1 + hidden2, adj + adj1 + adj2, self.gc3_1, self.gc2, self.gc3)
-        z3 = self.reparameterize(mu, logvar)
-        adj3 = self.dc(z1+ z2+ z3)
+        mu, logvar, hidden3 = self.encode(a+hidden1 + hidden2, adj + adj1 + adj2, self.gc3_1, self.gc2, self.gc3)
+        z = self.reparameterize(mu, logvar)
+        adj3 = self.dc(z)
 
 
         #get masked new adj
@@ -92,9 +95,9 @@ class GCNModelVAE(nn.Module):
         masked_adj = torch.where(adj > 0, adj3, zero_vec)
         adj3 = F.softmax(masked_adj, dim=1)
 
+        a  = torch.spmm(adj3.t(), z)
 
-
-        classifier = self.gc_class(hidden1 + hidden2 + hidden3, adj + adj1 + adj2 + adj3)
+        classifier = self.gc_class(a +hidden1 + hidden2 + hidden3, adj + adj1 + adj2 + adj3)
 
         return adj1 + adj2+ adj3, mu, logvar, F.log_softmax(classifier, dim=1)
 
