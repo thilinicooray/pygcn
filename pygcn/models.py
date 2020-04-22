@@ -58,39 +58,39 @@ class GCNModelVAE(nn.Module):
     def forward(self, x, adj):
         mu, logvar, hidden1 = self.encode(x, adj, self.gc1, self.gc2, self.gc3)
         z = self.reparameterize(mu, logvar)
-        pred_a1 = self.dc(z)
+        adj1 = self.dc(z)
 
 
         #get masked new adj
-        zero_vec = -9e15*torch.ones_like(pred_a1)
-        masked_adj = torch.where(adj > 0, pred_a1, zero_vec)
-        new_adj = F.softmax(masked_adj, dim=1)
+        zero_vec = -9e15*torch.ones_like(adj1)
+        masked_adj = torch.where(adj > 0, adj1, zero_vec)
+        adj1 = F.softmax(masked_adj, dim=1)
 
-        mu, logvar, hidden2 = self.encode(hidden1, new_adj, self.gc2_1, self.gc2, self.gc3)
+        mu, logvar, hidden2 = self.encode(hidden1, adj + adj1, self.gc2_1, self.gc2, self.gc3)
         z = self.reparameterize(mu, logvar)
-        pred_a1 = self.dc(z)
+        adj2 = self.dc(z)
 
 
         #get masked new adj
-        zero_vec = -9e15*torch.ones_like(pred_a1)
-        masked_adj = torch.where(adj > 0, pred_a1, zero_vec)
-        new_adj = F.softmax(masked_adj, dim=1)
+        zero_vec = -9e15*torch.ones_like(adj2)
+        masked_adj = torch.where(adj > 0, adj2, zero_vec)
+        adj2 = F.softmax(masked_adj, dim=1)
 
-        mu, logvar, hidden3 = self.encode(hidden2, new_adj, self.gc3_1, self.gc2, self.gc3)
+        mu, logvar, hidden3 = self.encode(hidden2, adj + adj1 + adj2, self.gc3_1, self.gc2, self.gc3)
         z = self.reparameterize(mu, logvar)
-        pred_a1 = self.dc(z)
+        adj3 = self.dc(z)
 
 
         #get masked new adj
-        zero_vec = -9e15*torch.ones_like(pred_a1)
-        masked_adj = torch.where(adj > 0, pred_a1, zero_vec)
-        new_adj = F.softmax(masked_adj, dim=1)
+        zero_vec = -9e15*torch.ones_like(adj3)
+        masked_adj = torch.where(adj > 0, adj3, zero_vec)
+        adj3 = F.softmax(masked_adj, dim=1)
 
 
 
-        classifier = self.gc_class(hidden3, new_adj)
+        classifier = self.gc_class(hidden3, adj + adj1 + adj2 + adj3)
 
-        return new_adj, mu, logvar, F.log_softmax(classifier, dim=1)
+        return adj1 + adj2+ adj3, mu, logvar, F.log_softmax(classifier, dim=1)
 
 
 class InnerProductDecoder(nn.Module):
