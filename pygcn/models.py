@@ -36,8 +36,9 @@ class GCNModelVAE(nn.Module):
         self.gc1 = GraphConvolution(input_feat_dim, hidden_dim1, dropout, act=F.relu)
         self.gc2 = GraphConvolution(hidden_dim1, hidden_dim2, dropout, act=lambda x: x)
         self.gc3 = GraphConvolution(hidden_dim1, hidden_dim2, dropout, act=lambda x: x)
+        self.gc4 = GraphConvolution(hidden_dim1, hidden_dim2, dropout, act=lambda x: x)
+        self.gc5 = GraphConvolution(hidden_dim1, hidden_dim2, dropout, act=lambda x: x)
         self.dc = InnerProductDecoder(dropout, act=lambda x: x)
-        self.dc1 = InnerProductDecoder(dropout, act=lambda x: x)
 
         self.gc2_1 = GraphConvolution(hidden_dim1+input_feat_dim, hidden_dim1, dropout, act=F.relu)
 
@@ -47,9 +48,9 @@ class GCNModelVAE(nn.Module):
 
         self.gc_class = GraphConvolution(hidden_dim1+input_feat_dim, nclass)
 
-    def encode(self, x, adj, gc1, gc2, gc3):
+    def encode(self, x, adj, gc1, gc2, gc3, gc4, gc5):
         hidden1 = gc1(x, adj)
-        return gc2(hidden1, adj), gc3(hidden1, adj), hidden1
+        return gc2(hidden1, adj), gc3(hidden1, adj), gc4(hidden1, adj), gc5(hidden1, adj), hidden1
 
     def reparameterize(self, mu, logvar):
         if self.training:
@@ -60,8 +61,9 @@ class GCNModelVAE(nn.Module):
             return mu
 
     def forward(self, x, adj):
-        mu, logvar, hidden1 = self.encode(x, adj, self.gc1, self.gc2, self.gc3)
+        mu, logvar, mu_n, var_n, hidden1 = self.encode(x, adj, self.gc1, self.gc2, self.gc3, self.gc4, self.gc5)
         z = self.reparameterize(mu, logvar)
+        z_n = self.reparameterize(mu_n, var_n)
         adj1 = self.dc(z)
 
 
@@ -70,13 +72,14 @@ class GCNModelVAE(nn.Module):
         masked_adj = torch.where(adj > 0, adj1, zero_vec)
         adj1 = F.softmax(masked_adj, dim=1)
 
-        a1 = self.node_regen(z, adj1.t())
+        a1 = self.node_regen(z_n, adj1.t())
         zero_vec = -9e15*torch.ones_like(a1)
         masked_nodes = torch.where(x > 0, a1, zero_vec)
         a1 = F.softmax(masked_nodes, dim=1)
 
-        mu, logvar, hidden2 = self.encode(torch.cat([a1 + x, hidden1],-1), adj + adj1, self.gc2_1, self.gc2, self.gc3)
+        mu, logvar,  mu_n, var_n, hidden2 = self.encode(torch.cat([a1 , hidden1],-1), adj + adj1, self.gc2_1, self.gc2, self.gc3, self.gc4, self.gc5)
         z = self.reparameterize(mu, logvar)
+        z_n = self.reparameterize(mu_n, var_n)
         adj2 = self.dc(z)
 
 
@@ -85,14 +88,15 @@ class GCNModelVAE(nn.Module):
         masked_adj = torch.where(adj > 0, adj2, zero_vec)
         adj2 = F.softmax(masked_adj, dim=1)
 
-        a2 = self.node_regen(z, adj2.t())
+        a2 = self.node_regen(z_n, adj2.t())
         zero_vec = -9e15*torch.ones_like(a2)
         masked_nodes = torch.where(x > 0, a2, zero_vec)
         a2 = F.softmax(masked_nodes, dim=1)
 
 
-        mu, logvar, hidden3 = self.encode(torch.cat([a2 + x,hidden1 + hidden2],-1), adj + adj1 + adj2, self.gc3_1, self.gc2, self.gc3)
+        mu, logvar,  mu_n, var_n, hidden3 = self.encode(torch.cat([a2,hidden1 + hidden2],-1), adj + adj1 + adj2, self.gc3_1, self.gc2, self.gc3, self.gc4, self.gc5)
         z = self.reparameterize(mu, logvar)
+        z_n = self.reparameterize(mu_n, var_n)
         adj3 = self.dc(z)
 
 
@@ -101,14 +105,14 @@ class GCNModelVAE(nn.Module):
         masked_adj = torch.where(adj > 0, adj3, zero_vec)
         adj3 = F.softmax(masked_adj, dim=1)
 
-        a3 = self.node_regen(z, adj3.t())
+        a3 = self.node_regen(z_n, adj3.t())
         zero_vec = -9e15*torch.ones_like(a3)
         masked_nodes = torch.where(x > 0, a3, zero_vec)
         a3 = F.softmax(masked_nodes, dim=1)
 
-        classifier = self.gc_class(torch.cat([a3 + x,hidden1 + hidden2 + hidden3],-1), adj + adj1 + adj2 + adj3)
+        classifier = self.gc_class(torch.cat([a3,hidden1 + hidden2 + hidden3],-1), adj + adj1 + adj2 + adj3)
 
-        return a1+a2+a3, adj1 + adj2+ adj3, mu, logvar, F.log_softmax(classifier, dim=1)
+        return a1+a2+a3, adj1 + adj2+ adj3, mu, logvar, mu_n, var_n, F.log_softmax(classifier, dim=1)
 
 
 class InnerProductDecoder(nn.Module):
