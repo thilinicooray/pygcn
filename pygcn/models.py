@@ -63,8 +63,8 @@ class GCNModelVAE(nn.Module):
 
     def forward(self, x, adj):
         mu, logvar, hidden1 = self.encode(x, adj, self.gc1, self.gc2, self.gc3)
-        z = self.reparameterize(mu, logvar)
-        adj1 = self.dc(z)
+        z1 = self.reparameterize(mu, logvar)
+        adj1 = self.dc(z1)
 
 
         #get masked new adj
@@ -73,8 +73,8 @@ class GCNModelVAE(nn.Module):
         adj1 = F.softmax(masked_adj, dim=1)
 
         mu, logvar, hidden2 = self.encode(hidden1, adj + adj1, self.gc2_1, self.gc2, self.gc3)
-        z = self.reparameterize(mu, logvar)
-        adj2 = self.dc(z)
+        z2 = self.reparameterize(mu, logvar)
+        adj2 = self.dc(z1+ z2)
 
 
         #get masked new adj
@@ -83,8 +83,8 @@ class GCNModelVAE(nn.Module):
         adj2 = F.softmax(masked_adj, dim=1)
 
         mu, logvar, hidden3 = self.encode(hidden1 + hidden2, adj + adj1 + adj2, self.gc3_1, self.gc2, self.gc3)
-        z = self.reparameterize(mu, logvar)
-        adj3 = self.dc(z)
+        z3 = self.reparameterize(mu, logvar)
+        adj3 = self.dc(z1+ z2+ z3)
 
 
         #get masked new adj
