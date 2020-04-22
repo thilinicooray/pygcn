@@ -64,9 +64,16 @@ class GCNModelVAE(nn.Module):
 
         hidden2 = self.gc2_1(torch.cat([x, layer1rep], -1), new_adj)
 
-        mfb_sign_sqrt = torch.sqrt(F.relu(hidden2)) - torch.sqrt(F.relu(-hidden2))
-        hidden2 = F.normalize(mfb_sign_sqrt)
+        #print('second rep ', hidden2[:3,:10])
+        mu = self.gc2_2(hidden2, new_adj)
+        logvar = self.gc2_3(hidden2, new_adj)
+        z = self.reparameterize(mu, logvar)
+        pred_a = self.dc1(z)
 
+        masked_adj = torch.where(adj > 0, pred_a, zero_vec)
+        new_adj = F.softmax(masked_adj, dim=1)
+
+        hidden2 = self.gc2_1(hidden2, new_adj)
 
         #print('second rep ', hidden2[:3,:10])
         mu = self.gc2_2(hidden2, new_adj)
@@ -74,9 +81,9 @@ class GCNModelVAE(nn.Module):
         z = self.reparameterize(mu, logvar)
         pred_a = self.dc1(z)
 
-        classifier = self.gc_class(hidden2 + layer1rep, new_adj +adj)
+        classifier = self.gc_class(hidden2, new_adj )
 
-        return pred_a+pred_a1, mu, logvar, F.log_softmax(classifier, dim=1)
+        return pred_a, mu, logvar, F.log_softmax(classifier, dim=1)
 
 
 class InnerProductDecoder(nn.Module):
