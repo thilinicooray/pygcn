@@ -62,7 +62,7 @@ class GCNModelVAE(nn.Module):
         new_adj = F.softmax(masked_adj, dim=1)
 
         hidden2 = self.gc2_1(layer1rep, new_adj.T)
-
+        hidden2 = self.gc2_2(hidden2, new_adj)
 
 
 
