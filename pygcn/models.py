@@ -70,17 +70,6 @@ class GCNModelVAE(nn.Module):
         z = self.reparameterize(mu, logvar)
         pred_a = self.dc1(z)
 
-        masked_adj = torch.where(adj > 0, pred_a, zero_vec)
-        new_adj = F.softmax(masked_adj, dim=1)
-
-        hidden2 = self.gc2_1(hidden2, new_adj)
-
-        #print('second rep ', hidden2[:3,:10])
-        mu = self.gc2_2(hidden2, new_adj)
-        logvar = self.gc2_3(hidden2, new_adj)
-        z = self.reparameterize(mu, logvar)
-        pred_a = self.dc1(z)
-
         classifier = self.gc_class(hidden2, new_adj )
 
         return pred_a, mu, logvar, F.log_softmax(classifier, dim=1)
