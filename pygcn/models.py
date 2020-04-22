@@ -43,7 +43,7 @@ class GCNModelVAE(nn.Module):
             nn.Linear(hidden_dim2, input_feat_dim, bias=False),
             nn.ReLU(inplace=True)
         )
-        self.gc_class = GraphConvolution(hidden_dim1, nclass)
+        self.gc_class = GraphConvolution(hidden_dim1+ input_feat_dim, nclass)
 
     def encode(self, x, adj):
         hidden1 = self.gc1(x, adj)
@@ -58,7 +58,6 @@ class GCNModelVAE(nn.Module):
             return mu
 
     def forward(self, x, adj):
-        print('org :',x[:3,:10])
         mu, logvar, layer1rep = self.encode(x, adj)
         z = self.reparameterize(mu, logvar)
         pred_a1 = self.dc(z)
@@ -80,10 +79,9 @@ class GCNModelVAE(nn.Module):
         pred_a = self.dc1(z)'''
 
         decoded_noderep = self.node_decoder(pred_a1)
-        print('new :', decoded_noderep[:3,:10])
 
 
-        classifier = self.gc_class(layer1rep, adj)
+        classifier = self.gc_class(torch.cat([layer1rep,decoded_noderep],-1), adj)
 
         return pred_a1, mu, logvar, F.log_softmax(classifier, dim=1)
 
