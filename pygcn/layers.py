@@ -1,4 +1,4 @@
-'''import math
+import math
 
 import torch
 
@@ -6,13 +6,13 @@ from torch.nn.parameter import Parameter
 from torch.nn.modules.module import Module
 
 
-class GraphConvolution(Module):
+class GraphConvolution1(Module):
     """
     Simple GCN layer, similar to https://arxiv.org/abs/1609.02907
     """
 
     def __init__(self, in_features, out_features, bias=True):
-        super(GraphConvolution, self).__init__()
+        super(GraphConvolution1, self).__init__()
         self.in_features = in_features
         self.out_features = out_features
         self.weight = Parameter(torch.FloatTensor(in_features, out_features))
@@ -40,7 +40,7 @@ class GraphConvolution(Module):
         return self.__class__.__name__ + ' (' \
                + str(self.in_features) + ' -> ' \
                + str(self.out_features) + ')'
-               '''
+
 
 import torch
 import torch.nn.functional as F
