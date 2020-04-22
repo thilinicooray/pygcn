@@ -40,12 +40,10 @@ class GCNModelVAE(nn.Module):
         self.dc1 = InnerProductDecoder(dropout, act=lambda x: x)
 
         self.gc2_1 = GraphConvolution(hidden_dim1, hidden_dim1, dropout, act=F.relu)
-        self.gc2_2 = GraphConvolution(hidden_dim1, hidden_dim2, dropout, act=lambda x: x)
-        self.gc2_3 = GraphConvolution(hidden_dim1, hidden_dim2, dropout, act=lambda x: x)
 
         self.gc3_1 = GraphConvolution(hidden_dim1, hidden_dim1, dropout, act=F.relu)
-        self.gc3_2 = GraphConvolution(hidden_dim1, hidden_dim2, dropout, act=lambda x: x)
-        self.gc3_3 = GraphConvolution(hidden_dim1, hidden_dim2, dropout, act=lambda x: x)
+
+        self.node_regen = GraphConvolution(hidden_dim1, input_feat_dim, dropout, act=F.relu)
 
         self.gc_class = GraphConvolution(hidden_dim1, nclass)
 
@@ -72,9 +70,9 @@ class GCNModelVAE(nn.Module):
         masked_adj = torch.where(adj > 0, adj1, zero_vec)
         adj1 = F.softmax(masked_adj, dim=1)
 
-        a1  = torch.spmm(adj1.t(), hidden1)
+        a1 = self.node_regen(hidden1, adj1.t())
 
-        mu, logvar, hidden2 = self.encode(a1 + hidden1, adj + adj1, self.gc2_1, self.gc2, self.gc3)
+        mu, logvar, hidden2 = self.encode(hidden1, adj + adj1, self.gc2_1, self.gc2, self.gc3)
         z = self.reparameterize(mu, logvar)
         adj2 = self.dc(z)
 
@@ -83,9 +81,9 @@ class GCNModelVAE(nn.Module):
         zero_vec = -9e15*torch.ones_like(adj2)
         masked_adj = torch.where(adj > 0, adj2, zero_vec)
         adj2 = F.softmax(masked_adj, dim=1)
-        a2  = torch.spmm(adj2.t(), hidden2)
+        a2 = self.node_regen(hidden2, adj2.t())
 
-        mu, logvar, hidden3 = self.encode(a2+hidden1 + hidden2, adj + adj1 + adj2, self.gc3_1, self.gc2, self.gc3)
+        mu, logvar, hidden3 = self.encode(hidden1 + hidden2, adj + adj1 + adj2, self.gc3_1, self.gc2, self.gc3)
         z = self.reparameterize(mu, logvar)
         adj3 = self.dc(z)
 
@@ -95,9 +93,9 @@ class GCNModelVAE(nn.Module):
         masked_adj = torch.where(adj > 0, adj3, zero_vec)
         adj3 = F.softmax(masked_adj, dim=1)
 
-        a3  = torch.spmm(adj3.t(), hidden3)
+        a3 = self.node_regen(hidden3, adj3.t())
 
-        classifier = self.gc_class(a3 +hidden1 + hidden2 + hidden3, adj + adj1 + adj2 + adj3)
+        classifier = self.gc_class(hidden1 + hidden2 + hidden3, adj + adj1 + adj2 + adj3)
 
         return a1+a2+a3, adj1 + adj2+ adj3, mu, logvar, F.log_softmax(classifier, dim=1)
 
