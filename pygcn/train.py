@@ -141,7 +141,7 @@ for k in range(10):
         ae_loss = loss_function(preds=recovered[idx_train], labels=adj1[idx_train],
                              mu=mu, logvar=logvar, n_nodes=features.shape[0])
         #print('losses ', node_cls_loss_train, ae_loss)
-        loss_train = 0.8* node_cls_loss_train + 0.2*ae_loss
+        loss_train = node_cls_loss_train + 0.1*ae_loss
         acc_train = accuracy(output[idx_train], labels[idx_train])
         loss_train.backward()
         optimizer.step()
