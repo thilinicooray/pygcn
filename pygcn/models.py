@@ -45,7 +45,7 @@ class GCNModelVAE(nn.Module):
 
         self.node_regen = GraphConvolution(hidden_dim1, input_feat_dim, dropout, act=F.relu)
 
-        self.gc_class = GraphConvolution(hidden_dim1, nclass)
+        self.gc_class = GraphConvolution(hidden_dim1+input_feat_dim, nclass)
 
     def encode(self, x, adj, gc1, gc2, gc3):
         hidden1 = gc1(x, adj)
