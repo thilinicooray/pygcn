@@ -40,6 +40,7 @@ class GCNModelVAE(nn.Module):
 
     def encode(self, x, adj):
         hidden1 = self.gc1(x, adj)
+        hidden1 = self.gc2_1(hidden1, adj)
         return self.gc2(hidden1, adj), self.gc3(hidden1, adj), hidden1
 
     def reparameterize(self, mu, logvar):
