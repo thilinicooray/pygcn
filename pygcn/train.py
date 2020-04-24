@@ -143,12 +143,12 @@ def train(epoch):
     loss_train.backward()
     optimizer.step()
 
-    if not args.fastmode:
+    #if not args.fastmode:
         # Evaluate validation set performance separately,
         # deactivates dropout during validation run.
-        model.eval()
-        with torch.no_grad():
-            noderegen, recovered, mu, logvar,mu_n, var_n, output = model(features, adj1)
+    model.eval()
+    with torch.no_grad():
+        noderegen, recovered, mu, logvar,mu_n, var_n, output = model(features, adj1)
 
     loss_val = F.nll_loss(output[idx_val], labels[idx_val])
     acc_val = accuracy(output[idx_val], labels[idx_val])
