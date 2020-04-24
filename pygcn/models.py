@@ -2,6 +2,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from pygcn.layers import GraphConvolution1
 
+import numpy as np
+
 
 class GCN(nn.Module):
     def __init__(self, nfeat, nhid, nclass, dropout):
@@ -70,6 +72,15 @@ class GCNModelVAE(nn.Module):
 
         self.gc_class = GraphConvolution(hidden_dim1+input_feat_dim, nclass)
 
+    def normalize(self, mx):
+        """Row-normalize sparse matrix"""
+        rowsum = np.array(mx.sum(1))
+        r_inv = np.power(rowsum, -1).flatten()
+        r_inv[np.isinf(r_inv)] = 0.
+        r_mat_inv = sp.diags(r_inv)
+        mx = r_mat_inv.dot(mx)
+        return mx
+
     def encode(self, x, adj, gc1, gc2, gc3):
         hidden1 = gc1(x, adj)
         return gc2(hidden1, adj), gc3(hidden1, adj),  hidden1
@@ -95,7 +106,8 @@ class GCNModelVAE(nn.Module):
         #get masked new adj
         zero_vec = -9e15*torch.ones_like(adj1)
         masked_adj = torch.where(adj > 0, adj1, zero_vec)
-        adj1 = F.softmax(masked_adj, dim=1)
+        #adj1 = F.softmax(masked_adj, dim=1)
+        adj1 = self.normalize(masked_adj)
 
 
         a1 = self.node_regen(z, adj1.t())
