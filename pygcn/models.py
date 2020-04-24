@@ -14,13 +14,13 @@ class GCN(nn.Module):
         self.dropout = dropout
 
     def forward(self, x, adj):
-        x = F.relu(self.gc1(x, adj))
-        x = F.dropout(x, self.dropout, training=self.training)
-        x = F.relu(self.gc3(x, adj))
-        x = F.dropout(x, self.dropout, training=self.training)
-        x = F.relu(self.gc4(x, adj))
-        x = F.dropout(x, self.dropout, training=self.training)
-        x = self.gc2(x, adj)
+        x1 = F.relu(self.gc1(x, adj))
+        x1 = F.dropout(x1, self.dropout, training=self.training)
+        x2 = F.relu(self.gc3(x1, adj))
+        x2 = F.dropout(x2, self.dropout, training=self.training)
+        x3 = F.relu(self.gc4(x2+x1, adj))
+        x3 = F.dropout(x3, self.dropout, training=self.training)
+        x = self.gc2(x2+x1 +x3, adj)
         return F.log_softmax(x, dim=1)
 
 import torch
