@@ -71,6 +71,9 @@ class GCNModelVAE(nn.Module):
             return mu
 
     def forward(self, x, adj):
+        print('layer init adj ', adj[:2,:10])
+        print('layer init node ', x[:2,:10])
+
         mu, logvar, mu_n, var_n, hidden1 = self.encode(x, adj, self.gc1, self.gc2, self.gc3, self.gc4, self.gc5)
         z = self.reparameterize(mu, logvar)
         z_n = self.reparameterize(mu_n, var_n)
@@ -116,11 +119,14 @@ class GCNModelVAE(nn.Module):
         masked_adj = torch.where(adj > 0, adj3, zero_vec)
         adj3 = F.softmax(masked_adj, dim=1)
 
+        print('layer 3 adj ', adj3[:2,:10])
+
 
         a3 = self.node_regen(z_n, adj3.t())
         zero_vec = -9e15*torch.ones_like(a3)
         masked_nodes = torch.where(x > 0, a3, zero_vec)
         a3 = F.softmax(masked_nodes, dim=1)
+        print('layer 3 nodes ', a3[:2,:10])
 
         mu, logvar,  mu_n, var_n, hidden4 = self.encode(torch.cat([a3,hidden1 + hidden2+hidden3],-1), adj + adj1 + adj2+adj3, self.gc4_1, self.gc2, self.gc3, self.gc4, self.gc5)
         z = self.reparameterize(mu, logvar)
@@ -149,10 +155,13 @@ class GCNModelVAE(nn.Module):
         masked_adj = torch.where(adj > 0, adj5, zero_vec)
         adj5 = F.softmax(masked_adj, dim=1)
 
+        print('layer 5 adj ', adj5[:2,:10])
+
         a5 = self.node_regen(z_n, adj5.t())
         zero_vec = -9e15*torch.ones_like(a5)
         masked_nodes = torch.where(x > 0, a5, zero_vec)
         a5 = F.softmax(masked_nodes, dim=1)
+        print('layer 5 nodes ', a5[:2,:10])
 
         mu, logvar,  mu_n, var_n, hidden6 = self.encode(torch.cat([a5,hidden1 + hidden2+hidden3+hidden4+hidden5],-1), adj + adj1 + adj2+adj3+adj4+adj5, self.gc6_1, self.gc2, self.gc3, self.gc4, self.gc5)
         z = self.reparameterize(mu, logvar)
@@ -164,11 +173,13 @@ class GCNModelVAE(nn.Module):
         zero_vec = -9e15*torch.ones_like(adj6)
         masked_adj = torch.where(adj > 0, adj6, zero_vec)
         adj6 = F.softmax(masked_adj, dim=1)
+        print('layer 6 adj ', adj6[:2,:10])
 
         a6 = self.node_regen(z_n, adj6.t())
         zero_vec = -9e15*torch.ones_like(a6)
         masked_nodes = torch.where(x > 0, a6, zero_vec)
         a6 = F.softmax(masked_nodes, dim=1)
+        print('layer 6 nodes ', a6[:2,:10])
 
         '''mu, logvar,  mu_n, var_n, hidden7 = self.encode(torch.cat([a6,hidden1 + hidden2+hidden3+hidden4+hidden5+hidden6],-1), adj + adj1 + adj2+adj3+adj4+adj5+adj6, self.gc7_1, self.gc2, self.gc3, self.gc4, self.gc5)
         z = self.reparameterize(mu, logvar)
