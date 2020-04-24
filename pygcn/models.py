@@ -48,6 +48,18 @@ class GCNModelVAE(nn.Module):
         self.gc6_1 = GraphConvolution(hidden_dim1+input_feat_dim, hidden_dim1, dropout, act=F.relu)
         self.gc7_1 = GraphConvolution(hidden_dim1+input_feat_dim, hidden_dim1, dropout, act=F.relu)
 
+
+        self.gc2_2 = GraphConvolution(hidden_dim1, hidden_dim2, dropout, act=lambda x: x)
+        self.gc3_2 = GraphConvolution(hidden_dim1, hidden_dim2, dropout, act=lambda x: x)
+        self.gc2_3 = GraphConvolution(hidden_dim1, hidden_dim2, dropout, act=lambda x: x)
+        self.gc3_3 = GraphConvolution(hidden_dim1, hidden_dim2, dropout, act=lambda x: x)
+        self.gc2_4 = GraphConvolution(hidden_dim1, hidden_dim2, dropout, act=lambda x: x)
+        self.gc3_4 = GraphConvolution(hidden_dim1, hidden_dim2, dropout, act=lambda x: x)
+        self.gc2_5 = GraphConvolution(hidden_dim1, hidden_dim2, dropout, act=lambda x: x)
+        self.gc3_5 = GraphConvolution(hidden_dim1, hidden_dim2, dropout, act=lambda x: x)
+        self.gc2_6 = GraphConvolution(hidden_dim1, hidden_dim2, dropout, act=lambda x: x)
+        self.gc3_6 = GraphConvolution(hidden_dim1, hidden_dim2, dropout, act=lambda x: x)
+
         self.node_regen = GraphConvolution(hidden_dim1, input_feat_dim, dropout, act=F.relu)
 
         self.adj2node = nn.Sequential(
@@ -91,7 +103,7 @@ class GCNModelVAE(nn.Module):
         masked_nodes = torch.where(x > 0, a1, zero_vec)
         a1 = F.softmax(masked_nodes, dim=1)
 
-        mu, logvar,  mu_n, var_n, hidden2 = self.encode(torch.cat([a1 , hidden1 ],-1), adj + adj1, self.gc2_1, self.gc2, self.gc3, self.gc4, self.gc5)
+        mu, logvar,  mu_n, var_n, hidden2 = self.encode(torch.cat([a1 , hidden1 ],-1), adj + adj1, self.gc2_1, self.gc2_2, self.gc3_2, self.gc4, self.gc5)
         z = self.reparameterize(mu, logvar)
         z_n = self.reparameterize(mu_n, var_n)
         adj2 = self.dc(z)
@@ -109,7 +121,7 @@ class GCNModelVAE(nn.Module):
         a2 = F.softmax(masked_nodes, dim=1)
 
 
-        mu, logvar,  mu_n, var_n, hidden3 = self.encode(torch.cat([a2,hidden1 + hidden2 ],-1), adj + adj1 + adj2, self.gc3_1, self.gc2, self.gc3, self.gc4, self.gc5)
+        mu, logvar,  mu_n, var_n, hidden3 = self.encode(torch.cat([a2,hidden1 + hidden2 ],-1), adj + adj1 + adj2, self.gc3_1, self.gc2_3, self.gc3_3, self.gc4, self.gc5)
         z = self.reparameterize(mu, logvar)
         z_n = self.reparameterize(mu_n, var_n)
         adj3 = self.dc(z)
@@ -128,7 +140,7 @@ class GCNModelVAE(nn.Module):
         a3 = F.softmax(masked_nodes, dim=1)
         print('layer 3 nodes ', a3[:2,:10])
 
-        mu, logvar,  mu_n, var_n, hidden4 = self.encode(torch.cat([a3,hidden1 + hidden2+hidden3],-1), adj + adj1 + adj2+adj3, self.gc4_1, self.gc2, self.gc3, self.gc4, self.gc5)
+        mu, logvar,  mu_n, var_n, hidden4 = self.encode(torch.cat([a3,hidden1 + hidden2+hidden3],-1), adj + adj1 + adj2+adj3, self.gc4_1, self.gc2_4, self.gc3_4, self.gc4, self.gc5)
         z = self.reparameterize(mu, logvar)
         z_n = self.reparameterize(mu_n, var_n)
         adj4 = self.dc(z)
@@ -144,7 +156,7 @@ class GCNModelVAE(nn.Module):
         masked_nodes = torch.where(x > 0, a4, zero_vec)
         a4 = F.softmax(masked_nodes, dim=1)
 
-        mu, logvar,  mu_n, var_n, hidden5 = self.encode(torch.cat([a4,hidden1 + hidden2+hidden3+hidden4],-1), adj + adj1 + adj2+adj3+adj4, self.gc5_1, self.gc2, self.gc3, self.gc4, self.gc5)
+        mu, logvar,  mu_n, var_n, hidden5 = self.encode(torch.cat([a4,hidden1 + hidden2+hidden3+hidden4],-1), adj + adj1 + adj2+adj3+adj4, self.gc5_1, self.gc2_5, self.gc3_5, self.gc4, self.gc5)
         z = self.reparameterize(mu, logvar)
         z_n = self.reparameterize(mu_n, var_n)
         adj5 = self.dc(z)
@@ -163,7 +175,7 @@ class GCNModelVAE(nn.Module):
         a5 = F.softmax(masked_nodes, dim=1)
         print('layer 5 nodes ', a5[:2,:10])
 
-        mu, logvar,  mu_n, var_n, hidden6 = self.encode(torch.cat([a5,hidden1 + hidden2+hidden3+hidden4+hidden5],-1), adj + adj1 + adj2+adj3+adj4+adj5, self.gc6_1, self.gc2, self.gc3, self.gc4, self.gc5)
+        mu, logvar,  mu_n, var_n, hidden6 = self.encode(torch.cat([a5,hidden1 + hidden2+hidden3+hidden4+hidden5],-1), adj + adj1 + adj2+adj3+adj4+adj5, self.gc6_1, self.gc2_6, self.gc3_6, self.gc4, self.gc5)
         z = self.reparameterize(mu, logvar)
         z_n = self.reparameterize(mu_n, var_n)
         adj6 = self.dc(z)
