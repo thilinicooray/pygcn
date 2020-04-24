@@ -160,12 +160,15 @@ for k in range(10):
 
             loss_val = F.nll_loss(output[idx_val], labels[idx_val])
             acc_val = accuracy(output[idx_val], labels[idx_val])
-            '''print('Epoch: {:04d}'.format(epoch+1),
+            print('Epoch: {:04d}'.format(epoch+1),
                   'loss_train: {:.4f}'.format(loss_train.item()),
+                  'loss_train-nll: {:.4f}'.format(node_cls_loss_train.item()),
+                  'loss_train-adjae: {:.4f}'.format(ae_loss.item()),
+                  'loss_train-nodeae: {:.4f}'.format(node_ae_loss.item()),
                   'acc_train: {:.4f}'.format(acc_train.item()),
                   'loss_val: {:.4f}'.format(loss_val.item()),
                   'acc_val: {:.4f}'.format(acc_val.item()),
-                  'time: {:.4f}s'.format(time.time() - t))'''
+                  'time: {:.4f}s'.format(time.time() - t))
 
             #return loss_val.data.item()
             return acc_val.data.item()
