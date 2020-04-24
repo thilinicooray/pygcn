@@ -61,7 +61,7 @@ fully_connected_graph = torch.ones(adj.size(0), adj.size(0))
 for idx1 in range(0,adj.size(0)):
     fully_connected_graph[idx1][idx1] = 0
 
-for k in range(10):
+for k in range(1):
 
     # Model and optimizer
     model = GCNModelVAE(input_feat_dim=features.shape[1],
