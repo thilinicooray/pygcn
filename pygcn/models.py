@@ -52,7 +52,7 @@ class GCNModelVAE(nn.Module):
 
         self.adj2node = nn.Sequential(
             nn.Dropout(dropout, inplace=True),
-            nn.Linear(hidden_dim1, hidden_dim1),
+            nn.Linear(1, hidden_dim1),
             nn.ReLU(inplace=True),
         )
 
