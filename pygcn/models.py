@@ -138,7 +138,7 @@ class GCNModelVAE(nn.Module):
         masked_nodes = torch.where(x > 0, a4, zero_vec)
         a4 = F.softmax(masked_nodes, dim=1)
 
-        '''mu, logvar,  mu_n, var_n, hidden5 = self.encode(torch.cat([a4,hidden1 + hidden2+hidden3+hidden4],-1), adj + adj1 + adj2+adj3+adj4, self.gc5_1, self.gc2, self.gc3, self.gc4, self.gc5)
+        mu, logvar,  mu_n, var_n, hidden5 = self.encode(torch.cat([a4,hidden1 + hidden2+hidden3+hidden4],-1), adj + adj1 + adj2+adj3+adj4, self.gc5_1, self.gc2, self.gc3, self.gc4, self.gc5)
         z = self.reparameterize(mu, logvar)
         z_n = self.reparameterize(mu_n, var_n)
         adj5 = self.dc(z)
@@ -154,7 +154,7 @@ class GCNModelVAE(nn.Module):
         masked_nodes = torch.where(x > 0, a5, zero_vec)
         a5 = F.softmax(masked_nodes, dim=1)
 
-        mu, logvar,  mu_n, var_n, hidden6 = self.encode(torch.cat([a5,hidden1 + hidden2+hidden3+hidden4+hidden5],-1), adj + adj1 + adj2+adj3+adj4+adj5, self.gc6_1, self.gc2, self.gc3, self.gc4, self.gc5)
+        '''mu, logvar,  mu_n, var_n, hidden6 = self.encode(torch.cat([a5,hidden1 + hidden2+hidden3+hidden4+hidden5],-1), adj + adj1 + adj2+adj3+adj4+adj5, self.gc6_1, self.gc2, self.gc3, self.gc4, self.gc5)
         z = self.reparameterize(mu, logvar)
         z_n = self.reparameterize(mu_n, var_n)
         adj6 = self.dc(z)
@@ -191,9 +191,9 @@ class GCNModelVAE(nn.Module):
 
         return a1+a2+a3+ a4+ a5+ a6+ a7, adj1 + adj2+ adj3+ adj4+adj5+adj6 + adj7, mu, logvar, mu_n, var_n, F.log_softmax(classifier, dim=1)'''
 
-        classifier = self.gc_class(torch.cat([a4,hidden1 + hidden2 + hidden3+hidden4  ],-1), adj + adj1 + adj2 + adj3+adj4)
+        classifier = self.gc_class(torch.cat([a5,hidden1 + hidden2 + hidden3+hidden4 + hidden5  ],-1), adj + adj1 + adj2 + adj3+adj4+adj5)
 
-        return a1+a2+a3+a4, adj1 + adj2+ adj3 + adj4, mu, logvar, mu_n, var_n, F.log_softmax(classifier, dim=1)
+        return a1+a2+a3+a4+a5, adj1 + adj2+ adj3 + adj4+adj5, mu, logvar, mu_n, var_n, F.log_softmax(classifier, dim=1)
 
 
 class InnerProductDecoder(nn.Module):
