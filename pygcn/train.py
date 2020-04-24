@@ -33,7 +33,7 @@ parser.add_argument('--no-cuda', action='store_true', default=False,
 parser.add_argument('--fastmode', action='store_true', default=False,
                     help='Validate during training pass.')
 parser.add_argument('--seed', type=int, default=42, help='Random seed.')
-parser.add_argument('--lr', type=float, default=0.001,
+parser.add_argument('--lr', type=float, default=0.01,
                     help='Initial learning rate.')
 parser.add_argument('--weight_decay', type=float, default=5e-4,
                     help='Weight decay (L2 loss on parameters).')
@@ -47,12 +47,10 @@ parser.add_argument('--epochs', type=int, default=800, help='Number of epochs to
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
-np.random.seed(0)
+np.random.seed(args.seed)
 torch.manual_seed(args.seed)
 if args.cuda:
     torch.cuda.manual_seed(args.seed)
-    torch.backends.cudnn.deterministic = True
-    torch.backends.cudnn.benchmark = False
 
 # Load data
 adj, adj1, features, labels, idx_train, idx_val, idx_test = load_data()
@@ -62,7 +60,7 @@ fully_connected_graph = torch.ones(adj.size(0), adj.size(0))
 for idx1 in range(0,adj.size(0)):
     fully_connected_graph[idx1][idx1] = 0
 
-for k in range(1):
+for k in range(30):
 
     # Model and optimizer
     model = GCNModelVAE(input_feat_dim=features.shape[1],
