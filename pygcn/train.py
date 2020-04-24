@@ -158,6 +158,7 @@ for k in range(1):
 
 
         loss_train.backward()
+        torch.nn.utils.clip_grad_norm_(model.parameters(), 0.25)
         optimizer.step()
 
         if not args.fastmode:
