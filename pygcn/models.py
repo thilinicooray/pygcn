@@ -75,7 +75,7 @@ class GCNModelVAE(nn.Module):
 
     def normalize(self, mx):
         """Row-normalize sparse matrix"""
-        mx = mx.cpu()
+        mx = mx.cpu().detach().numpy()
         rowsum = np.array(mx.sum(1))
         r_inv = np.power(rowsum, -1).flatten()
         r_inv[np.isinf(r_inv)] = 0.
