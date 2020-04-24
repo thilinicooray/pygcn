@@ -136,62 +136,49 @@ for k in range(10):
 
         model.train()
         optimizer.zero_grad()
+        noderegen, recovered, mu, logvar, output = model(features, adj1)
+        node_cls_loss_train = F.nll_loss(output[idx_train], labels[idx_train])
+        ae_loss = loss_function(preds=recovered[idx_train], labels=adj1[idx_train],
+                             mu=mu[idx_train], logvar=logvar[idx_train], n_nodes=features.shape[0])
+        node_ae_loss = loss_function(preds=noderegen[idx_train], labels=features[idx_train],
+                                mu=mu[idx_train], logvar=logvar[idx_train], n_nodes=features.shape[0])
+        #print('losses ', node_cls_loss_train, ae_loss)
+        loss_train = node_cls_loss_train + 0.1*ae_loss + 0.1*node_ae_loss
+        acc_train = accuracy(output[idx_train], labels[idx_train])
+        loss_train.backward()
+        optimizer.step()
 
-        with torch.autograd.set_detect_anomaly(True):
+        if not args.fastmode:
+            # Evaluate validation set performance separately,
+            # deactivates dropout during validation run.
+            model.eval()
+            with torch.no_grad():
+                noderegen, recovered, mu, logvar, output = model(features, adj1)
 
-            recovered, mu, logvar, output = model(features, adj1)
-            node_cls_loss_train = F.nll_loss(output[idx_train], labels[idx_train])
-            ae_loss = loss_function(preds=recovered[idx_train], labels=adj1[idx_train],
-                                 mu=mu[idx_train], logvar=logvar[idx_train], n_nodes=features.shape[0])
-            #node_ae_loss = loss_function(preds=noderegen[idx_train], labels=features[idx_train],
-                                    #mu=mu[idx_train], logvar=logvar[idx_train], n_nodes=features.shape[0])
-            #print('losses ', node_cls_loss_train, ae_loss)
-            loss_train = 2*(0.8*node_cls_loss_train + 0.1*ae_loss )
-            acc_train = accuracy(output[idx_train], labels[idx_train])
+        loss_val = F.nll_loss(output[idx_val], labels[idx_val])
+        acc_val = accuracy(output[idx_val], labels[idx_val])
+        '''print('Epoch: {:04d}'.format(epoch+1),
+              'loss_train: {:.4f}'.format(loss_train.item()),
+              'acc_train: {:.4f}'.format(acc_train.item()),
+              'loss_val: {:.4f}'.format(loss_val.item()),
+              'acc_val: {:.4f}'.format(acc_val.item()),
+              'time: {:.4f}s'.format(time.time() - t))'''
 
-            '''print('Epoch: {:04d}'.format(epoch+1),
-                  'loss_train: {:.4f}'.format(loss_train.item()),
-                  'loss_train-nll: {:.4f}'.format(node_cls_loss_train.item()),
-                  'loss_train-adjae: {:.4f}'.format(ae_loss.item()),
-                  'acc_train: {:.4f}'.format(acc_train.item()))'''
-
-
-            loss_train.backward()
-            optimizer.step()
-
-            if not args.fastmode:
-                # Evaluate validation set performance separately,
-                # deactivates dropout during validation run.
-                model.eval()
-                with torch.no_grad():
-                    recovered, mu, logvar, output = model(features, adj1)
-
-            loss_val = F.nll_loss(output[idx_val], labels[idx_val])
-            acc_val = accuracy(output[idx_val], labels[idx_val])
-            '''print('Epoch: {:04d}'.format(epoch+1),
-                  'loss_train: {:.4f}'.format(loss_train.item()),
-                  'acc_train: {:.4f}'.format(acc_train.item()),
-                  'loss_val: {:.4f}'.format(loss_val.item()),
-                  'acc_val: {:.4f}'.format(acc_val.item()),
-                  'time: {:.4f}s'.format(time.time() - t))'''
-
-            #return loss_val.data.item()
-            return acc_val.data.item()
+        #return loss_val.data.item()
+        return acc_val.data.item()
 
 
     def compute_test():
         model.eval()
         with torch.no_grad():
-            recovered, mu, logvar,output = model(features, adj1)
+            noderegen, recovered, mu, logvar, output = model(features, adj1)
             loss_test = F.nll_loss(output[idx_test], labels[idx_test])
-            loss_ae_test = loss_function(preds=recovered[idx_test], labels=adj1[idx_test],
+            loss_ae = loss_function(preds=recovered[idx_test], labels=adj1[idx_test],
                                     mu=mu[idx_test], logvar=logvar[idx_test], n_nodes=features.shape[0])
-            '''node_ae_loss_test = loss_function(preds=noderegen[idx_test], labels=features[idx_test],
-                                         mu=mu[idx_test], logvar=logvar[idx_test], n_nodes=features.shape[0])'''
             acc_test = accuracy(output[idx_test], labels[idx_test])
             print("Test set results:",
                   "loss= {:.4f}".format(loss_test.item()),
-                  "loss-adjAE= {:.4f}".format(loss_ae_test.item()),
+                  "loss-AE= {:.4f}".format(loss_ae.item()),
                   "accuracy= {:.4f}".format(acc_test.item()))
 
     # Train model
