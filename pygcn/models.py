@@ -82,7 +82,7 @@ class GCNModelVAE(nn.Module):
         masked_adj = torch.where(adj > 0, adj1, zero_vec)
         adj1 = F.softmax(masked_adj, dim=1)
 
-        adj2node1 = torch.sum(self.adj2node(adj1),1)
+        adj2node1 = torch.sum(self.adj2node(adj1.unsqueeze(-1)),1)
 
         a1 = self.node_regen(z_n, adj1.t())
         zero_vec = -9e15*torch.ones_like(a1)
@@ -100,7 +100,7 @@ class GCNModelVAE(nn.Module):
         masked_adj = torch.where(adj > 0, adj2, zero_vec)
         adj2 = F.softmax(masked_adj, dim=1)
 
-        adj2node1 = torch.sum(self.adj2node(adj2),1)
+        adj2node1 = torch.sum(self.adj2node(adj2.unsqueeze(-1)),1)
 
         a2 = self.node_regen(z_n, adj2.t())
         zero_vec = -9e15*torch.ones_like(a2)
@@ -118,7 +118,7 @@ class GCNModelVAE(nn.Module):
         masked_adj = torch.where(adj > 0, adj3, zero_vec)
         adj3 = F.softmax(masked_adj, dim=1)
 
-        adj2node1 = torch.sum(self.adj2node(adj3),1)
+        adj2node1 = torch.sum(self.adj2node(adj3.unsqueeze(-1)),1)
 
         a3 = self.node_regen(z_n, adj3.t())
         zero_vec = -9e15*torch.ones_like(a3)
