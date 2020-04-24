@@ -139,14 +139,14 @@ for k in range(10):
 
         with torch.autograd.set_detect_anomaly(True):
 
-            noderegen, recovered, mu, logvar, output = model(features, adj1)
+            recovered, mu, logvar, output = model(features, adj1)
             node_cls_loss_train = F.nll_loss(output[idx_train], labels[idx_train])
             ae_loss = loss_function(preds=recovered[idx_train], labels=adj1[idx_train],
                                  mu=mu[idx_train], logvar=logvar[idx_train], n_nodes=features.shape[0])
-            node_ae_loss = loss_function(preds=noderegen[idx_train], labels=features[idx_train],
-                                    mu=mu[idx_train], logvar=logvar[idx_train], n_nodes=features.shape[0])
+            #node_ae_loss = loss_function(preds=noderegen[idx_train], labels=features[idx_train],
+                                    #mu=mu[idx_train], logvar=logvar[idx_train], n_nodes=features.shape[0])
             #print('losses ', node_cls_loss_train, ae_loss)
-            loss_train = 2*(0.8*node_cls_loss_train + 0.1*ae_loss + 0.2*node_ae_loss)
+            loss_train = 2*(0.8*node_cls_loss_train + 0.1*ae_loss )
             acc_train = accuracy(output[idx_train], labels[idx_train])
 
             '''print('Epoch: {:04d}'.format(epoch+1),
@@ -165,7 +165,7 @@ for k in range(10):
                 # deactivates dropout during validation run.
                 model.eval()
                 with torch.no_grad():
-                    noderegen, recovered, mu, logvar, output = model(features, adj1)
+                    recovered, mu, logvar, output = model(features, adj1)
 
             loss_val = F.nll_loss(output[idx_val], labels[idx_val])
             acc_val = accuracy(output[idx_val], labels[idx_val])
@@ -183,17 +183,16 @@ for k in range(10):
     def compute_test():
         model.eval()
         with torch.no_grad():
-            noderegen, recovered, mu, logvar,output = model(features, adj1)
+            recovered, mu, logvar,output = model(features, adj1)
             loss_test = F.nll_loss(output[idx_test], labels[idx_test])
             loss_ae_test = loss_function(preds=recovered[idx_test], labels=adj1[idx_test],
                                     mu=mu[idx_test], logvar=logvar[idx_test], n_nodes=features.shape[0])
-            node_ae_loss_test = loss_function(preds=noderegen[idx_test], labels=features[idx_test],
-                                         mu=mu[idx_test], logvar=logvar[idx_test], n_nodes=features.shape[0])
+            '''node_ae_loss_test = loss_function(preds=noderegen[idx_test], labels=features[idx_test],
+                                         mu=mu[idx_test], logvar=logvar[idx_test], n_nodes=features.shape[0])'''
             acc_test = accuracy(output[idx_test], labels[idx_test])
             print("Test set results:",
                   "loss= {:.4f}".format(loss_test.item()),
                   "loss-adjAE= {:.4f}".format(loss_ae_test.item()),
-                  "loss-nodeAE= {:.4f}".format(node_ae_loss_test.item()),
                   "accuracy= {:.4f}".format(acc_test.item()))
 
     # Train model
