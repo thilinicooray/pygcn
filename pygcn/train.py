@@ -146,7 +146,7 @@ for k in range(10):
             node_ae_loss = loss_function(preds=noderegen[idx_train], labels=features[idx_train],
                                     mu=mu_n[idx_train], logvar=var_n[idx_train], n_nodes=features.shape[0])
             #print('losses ', node_cls_loss_train, ae_loss)
-            loss_train = 2*node_cls_loss_train + 0.1*ae_loss + 0.1*node_ae_loss
+            loss_train = 2*(0.8*node_cls_loss_train + 0.1*ae_loss + 0.1*node_ae_loss)
             acc_train = accuracy(output[idx_train], labels[idx_train])
             loss_train.backward()
             optimizer.step()
