@@ -3,6 +3,7 @@ import torch.nn.functional as F
 from pygcn.layers import GraphConvolution1
 
 import numpy as np
+import scipy.sparse as sp
 
 
 class GCN(nn.Module):
@@ -74,6 +75,7 @@ class GCNModelVAE(nn.Module):
 
     def normalize(self, mx):
         """Row-normalize sparse matrix"""
+        mx = mx.cpu()
         rowsum = np.array(mx.sum(1))
         r_inv = np.power(rowsum, -1).flatten()
         r_inv[np.isinf(r_inv)] = 0.
