@@ -110,17 +110,14 @@ class GCNModelVAE(nn.Module):
         #get masked new adj
         zero_vec = -9e15*torch.ones_like(adj1)
         masked_adj = torch.where(adj > 0, adj1, zero_vec)
-        #adj1 = F.softmax(masked_adj, dim=1)
-        adj1 = self.normalize(masked_adj)
-        #adj1 = torch.from_numpy(adj1).float().to(torch.device('cuda'))
+        adj1 = F.softmax(masked_adj, dim=1)
 
 
         a1 = self.node_regen(z, adj1.t())
+        a1[a1!=a1] = 0
         zero_vec = -9e15*torch.ones_like(a1)
         masked_nodes = torch.where(x > 0, a1, zero_vec)
-        #a1 = F.softmax(masked_nodes, dim=1)
-        a1 = self.normalize(masked_nodes)
-        #a1 = torch.from_numpy(a1).float().to(torch.device('cuda'))
+        a1 = F.softmax(masked_nodes, dim=1)
 
         mu, logvar,  hidden2 = self.encode(torch.cat([a1 , hidden1 ],-1), adj + adj1, self.gc2_1, self.gc2_2, self.gc3_2)
         z = self.reparameterize(mu, logvar)
@@ -131,17 +128,14 @@ class GCNModelVAE(nn.Module):
         #get masked new adj
         zero_vec = -9e15*torch.ones_like(adj2)
         masked_adj = torch.where(adj > 0, adj2, zero_vec)
-        #adj2 = F.softmax(masked_adj, dim=1)
-        adj2 = self.normalize(masked_adj)
-        #adj2 = torch.from_numpy(adj2).float().to(torch.device('cuda'))
+        adj2 = F.softmax(masked_adj, dim=1)
 
 
         a2 = self.node_regen(z, adj2.t())
+        a2[a2!=a2] = 0
         zero_vec = -9e15*torch.ones_like(a2)
         masked_nodes = torch.where(x > 0, a2, zero_vec)
-        #a2 = F.softmax(masked_nodes, dim=1)
-        a2 = self.normalize(masked_nodes)
-        #a2 = torch.from_numpy(a2).float().to(torch.device('cuda'))
+        a2 = F.softmax(masked_nodes, dim=1)
 
 
         mu, logvar,   hidden3 = self.encode(torch.cat([a2,hidden1 + hidden2 ],-1), adj + adj1 + adj2, self.gc3_1, self.gc2_3, self.gc3_3)
@@ -152,19 +146,16 @@ class GCNModelVAE(nn.Module):
         #get masked new adj
         zero_vec = -9e15*torch.ones_like(adj3)
         masked_adj = torch.where(adj > 0, adj3, zero_vec)
-        #adj3 = F.softmax(masked_adj, dim=1)
-        adj3 = self.normalize(masked_adj)
-        #adj3 = torch.from_numpy(adj3).float().to(torch.device('cuda'))
+        adj3 = F.softmax(masked_adj, dim=1)
 
         #print('layer 3 adj ', adj3[:2,:10])
 
 
         a3 = self.node_regen(z, adj3.t())
+        a3[a3!=a3] = 0
         zero_vec = -9e15*torch.ones_like(a3)
         masked_nodes = torch.where(x > 0, a3, zero_vec)
-        #a3 = F.softmax(masked_nodes, dim=1)
-        a3 = self.normalize(masked_nodes)
-        #a3 = torch.from_numpy(a3).float().to(torch.device('cuda'))
+        a3 = F.softmax(masked_nodes, dim=1)
         #print('layer 3 nodes ', a3[:2,:10])
 
         mu, logvar,  hidden4 = self.encode(torch.cat([a3,hidden1 + hidden2+hidden3],-1), adj + adj1 + adj2+adj3, self.gc4_1, self.gc2_4, self.gc3_4)
@@ -176,16 +167,13 @@ class GCNModelVAE(nn.Module):
         #get masked new adj
         zero_vec = -9e15*torch.ones_like(adj4)
         masked_adj = torch.where(adj > 0, adj4, zero_vec)
-        #adj4 = F.softmax(masked_adj, dim=1)
-        adj4 = self.normalize(masked_adj)
-        #adj4 = torch.from_numpy(adj4).float().to(torch.device('cuda'))
+        adj4 = F.softmax(masked_adj, dim=1)
 
         a4 = self.node_regen(z, adj4.t())
+        a4[a4!=a4] = 0
         zero_vec = -9e15*torch.ones_like(a4)
         masked_nodes = torch.where(x > 0, a4, zero_vec)
-        #a4 = F.softmax(masked_nodes, dim=1)
-        a4 = self.normalize(masked_nodes)
-        #a4 = torch.from_numpy(a4).float().to(torch.device('cuda'))
+        a4 = F.softmax(masked_nodes, dim=1)
 
         mu, logvar,  hidden5 = self.encode(torch.cat([a4,hidden1 + hidden2+hidden3+hidden4],-1), adj + adj1 + adj2+adj3+adj4, self.gc5_1, self.gc2_5, self.gc3_5)
         z = self.reparameterize(mu, logvar)
@@ -196,18 +184,15 @@ class GCNModelVAE(nn.Module):
         #get masked new adj
         zero_vec = -9e15*torch.ones_like(adj5)
         masked_adj = torch.where(adj > 0, adj5, zero_vec)
-        #adj5 = F.softmax(masked_adj, dim=1)
-        adj5 = self.normalize(masked_adj)
-        #adj5 = torch.from_numpy(adj5).float().to(torch.device('cuda'))
+        adj5 = F.softmax(masked_adj, dim=1)
 
         #print('layer 5 adj ', adj5[:2,:10])
 
         a5 = self.node_regen(z, adj5.t())
+        a5[a5!=a5] = 0
         zero_vec = -9e15*torch.ones_like(a5)
         masked_nodes = torch.where(x > 0, a5, zero_vec)
-        #a5 = F.softmax(masked_nodes, dim=1)
-        a5 = self.normalize(masked_nodes)
-        #a5 = torch.from_numpy(a5).float().to(torch.device('cuda'))
+        a5 = F.softmax(masked_nodes, dim=1)
         #print('layer 5 nodes ', a5[:2,:10])
 
         mu, logvar, hidden6 = self.encode(torch.cat([a5,hidden1 + hidden2+hidden3+hidden4+hidden5],-1), adj + adj1 + adj2+adj3+adj4+adj5, self.gc6_1, self.gc2_6, self.gc3_6)
@@ -219,17 +204,14 @@ class GCNModelVAE(nn.Module):
         #get masked new adj
         zero_vec = -9e15*torch.ones_like(adj6)
         masked_adj = torch.where(adj > 0, adj6, zero_vec)
-        #adj6 = F.softmax(masked_adj, dim=1)
-        adj6 = self.normalize(masked_adj)
-        #adj6 = torch.from_numpy(adj6).float().to(torch.device('cuda'))
+        adj6 = F.softmax(masked_adj, dim=1)
         #print('layer 6 adj ', adj6[:2,:10])
 
         a6 = self.node_regen(z, adj6.t())
+        a6[a6!=a6] = 0
         zero_vec = -9e15*torch.ones_like(a6)
         masked_nodes = torch.where(x > 0, a6, zero_vec)
-        #a6 = F.softmax(masked_nodes, dim=1)
-        a6 = self.normalize(masked_nodes)
-        #a6 = torch.from_numpy(a6).float().to(torch.device('cuda'))
+        a6 = F.softmax(masked_nodes, dim=1)
         #print('layer 6 nodes ', a6[:2,:10])
 
         '''mu, logvar,  mu_n, var_n, hidden7 = self.encode(torch.cat([a6,hidden1 + hidden2+hidden3+hidden4+hidden5+hidden6],-1), adj + adj1 + adj2+adj3+adj4+adj5+adj6, self.gc7_1, self.gc2, self.gc3, self.gc4, self.gc5)
