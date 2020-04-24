@@ -176,12 +176,15 @@ for k in range(10):
         with torch.no_grad():
             noderegen, recovered, mu, logvar, mu_n, var_n,output = model(features, adj1)
             loss_test = F.nll_loss(output[idx_test], labels[idx_test])
-            loss_ae = loss_function(preds=recovered[idx_test], labels=adj1[idx_test],
+            loss_ae_test = loss_function(preds=recovered[idx_test], labels=adj1[idx_test],
                                     mu=mu[idx_test], logvar=logvar[idx_test], n_nodes=features.shape[0])
+            node_ae_loss_test = loss_function(preds=noderegen[idx_test], labels=features[idx_test],
+                                         mu=mu_n[idx_test], logvar=var_n[idx_test], n_nodes=features.shape[0])
             acc_test = accuracy(output[idx_test], labels[idx_test])
             print("Test set results:",
                   "loss= {:.4f}".format(loss_test.item()),
-                  "loss-AE= {:.4f}".format(loss_ae.item()),
+                  "loss-adjAE= {:.4f}".format(loss_ae_test.item()),
+                  "loss-nodeAE= {:.4f}".format(node_ae_loss_test.item()),
                   "accuracy= {:.4f}".format(acc_test.item()))
 
     # Train model
