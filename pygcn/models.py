@@ -110,12 +110,15 @@ class GCNModelVAE(nn.Module):
         masked_adj = torch.where(adj > 0, adj1, zero_vec)
         #adj1 = F.softmax(masked_adj, dim=1)
         adj1 = self.normalize(masked_adj)
+        adj1 = torch.from_numpy(adj1).float().to(torch.device('cuda'))
 
 
         a1 = self.node_regen(z, adj1.t())
         zero_vec = -9e15*torch.ones_like(a1)
         masked_nodes = torch.where(x > 0, a1, zero_vec)
-        a1 = F.softmax(masked_nodes, dim=1)
+        #a1 = F.softmax(masked_nodes, dim=1)
+        a1 = self.normalize(masked_nodes)
+        a1 = torch.from_numpy(a1).float().to(torch.device('cuda'))
 
         mu, logvar,  hidden2 = self.encode(torch.cat([a1 , hidden1 ],-1), adj + adj1, self.gc2_1, self.gc2_2, self.gc3_2)
         z = self.reparameterize(mu, logvar)
