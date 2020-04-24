@@ -157,7 +157,7 @@ for k in range(10):
                 model.eval()
                 with torch.no_grad():
                     noderegen, recovered, mu, logvar,mu_n, var_n, output = model(features, adj1)
-    
+
             loss_val = F.nll_loss(output[idx_val], labels[idx_val])
             acc_val = accuracy(output[idx_val], labels[idx_val])
             '''print('Epoch: {:04d}'.format(epoch+1),
