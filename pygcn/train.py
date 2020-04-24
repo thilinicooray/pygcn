@@ -51,7 +51,8 @@ np.random.seed(0)
 torch.manual_seed(args.seed)
 if args.cuda:
     torch.cuda.manual_seed(args.seed)
-    torch.backends.cudnn.benchmark = True
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 
 # Load data
 adj, adj1, features, labels, idx_train, idx_val, idx_test = load_data()
