@@ -47,7 +47,7 @@ parser.add_argument('--epochs', type=int, default=800, help='Number of epochs to
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
-np.random.seed(args.seed)
+np.random.seed(0)
 torch.manual_seed(args.seed)
 if args.cuda:
     torch.cuda.manual_seed(args.seed)
