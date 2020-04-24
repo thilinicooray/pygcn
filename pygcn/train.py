@@ -16,6 +16,7 @@ np.random.seed(42)
 torch.manual_seed(42)
 torch.cuda.manual_seed(42)
 torch.backends.cudnn.deterministic=True
+torch.backends.cudnn.bemchmark=False
 
 from pygcn.utils import load_data, accuracy
 from pygcn.models import GCNModelVAE
