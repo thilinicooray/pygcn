@@ -148,6 +148,15 @@ for k in range(10):
             #print('losses ', node_cls_loss_train, ae_loss)
             loss_train = 2*(0.8*node_cls_loss_train + 0.1*ae_loss + 0.2*node_ae_loss)
             acc_train = accuracy(output[idx_train], labels[idx_train])
+
+            print('Epoch: {:04d}'.format(epoch+1),
+                  'loss_train: {:.4f}'.format(loss_train.item()),
+                  'loss_train-nll: {:.4f}'.format(node_cls_loss_train.item()),
+                  'loss_train-adjae: {:.4f}'.format(ae_loss.item()),
+                  'loss_train-nodeae: {:.4f}'.format(node_ae_loss.item()),
+                  'acc_train: {:.4f}'.format(acc_train.item()))
+
+
             loss_train.backward()
             optimizer.step()
 
@@ -162,9 +171,6 @@ for k in range(10):
             acc_val = accuracy(output[idx_val], labels[idx_val])
             print('Epoch: {:04d}'.format(epoch+1),
                   'loss_train: {:.4f}'.format(loss_train.item()),
-                  'loss_train-nll: {:.4f}'.format(node_cls_loss_train.item()),
-                  'loss_train-adjae: {:.4f}'.format(ae_loss.item()),
-                  'loss_train-nodeae: {:.4f}'.format(node_ae_loss.item()),
                   'acc_train: {:.4f}'.format(acc_train.item()),
                   'loss_val: {:.4f}'.format(loss_val.item()),
                   'acc_val: {:.4f}'.format(acc_val.item()),
