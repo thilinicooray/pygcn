@@ -69,7 +69,6 @@ for k in range(30):
     if args.cuda:
         model.cuda()
         features = features.cuda()
-        fully_connected_graph = fully_connected_graph.cuda()
         adj = adj.cuda()
         adj1 = adj1.cuda()
         labels = labels.cuda()
