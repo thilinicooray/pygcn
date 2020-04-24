@@ -71,7 +71,7 @@ class GCNModelVAE(nn.Module):
             nn.ReLU(inplace=True),
         )
 
-        self.gc_class = GraphConvolution(hidden_dim1+input_feat_dim, nclass)
+        self.gc_class = GraphConvolution(hidden_dim1, nclass)
 
     def normalize(self, mx):
         """Row-normalize sparse matrix"""
