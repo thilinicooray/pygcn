@@ -279,7 +279,7 @@ class GCNModelVAE(nn.Module):
         #print('layer 3 adj ', adj3[:2,:10])
 
 
-        mu, logvar,  hidden4 = self.encode(hidden1 + hidden2+hidden3, adj + adj1 + adj2+adj3, self.gc4_1, self.gc2_4, self.gc3_4)
+        '''mu, logvar,  hidden4 = self.encode(hidden1 + hidden2+hidden3, adj + adj1 + adj2+adj3, self.gc4_1, self.gc2_4, self.gc3_4)
         z = self.reparameterize(mu, logvar)
         #z_n = self.reparameterize(mu_n, var_n)
         adj4 = self.dc(z)
@@ -319,7 +319,7 @@ class GCNModelVAE(nn.Module):
 
 
 
-        '''mu, logvar,  mu_n, var_n, hidden7 = self.encode(torch.cat([a6,hidden1 + hidden2+hidden3+hidden4+hidden5+hidden6],-1), adj + adj1 + adj2+adj3+adj4+adj5+adj6, self.gc7_1, self.gc2, self.gc3, self.gc4, self.gc5)
+        mu, logvar,  mu_n, var_n, hidden7 = self.encode(torch.cat([a6,hidden1 + hidden2+hidden3+hidden4+hidden5+hidden6],-1), adj + adj1 + adj2+adj3+adj4+adj5+adj6, self.gc7_1, self.gc2, self.gc3, self.gc4, self.gc5)
         z = self.reparameterize(mu, logvar)
         z_n = self.reparameterize(mu_n, var_n)
         adj7 = self.dc(z)
@@ -340,9 +340,9 @@ class GCNModelVAE(nn.Module):
 
         return a1+a2+a3+ a4+ a5+ a6+ a7, adj1 + adj2+ adj3+ adj4+adj5+adj6 + adj7, mu, logvar, mu_n, var_n, F.log_softmax(classifier, dim=1)'''
 
-        classifier = self.gc_class(hidden1 + hidden2 + hidden3+hidden4 + hidden5+hidden6 , adj + adj1 + adj2 + adj3+adj4+adj5+adj6)
+        classifier = self.gc_class(hidden1 + hidden2 + hidden3, adj + adj1 + adj2 + adj3)
 
-        return  adj1 + adj2+ adj3 + adj4+adj5+adj6, mu, logvar, F.log_softmax(classifier, dim=1)
+        return  adj1 + adj2+ adj3 , mu, logvar, F.log_softmax(classifier, dim=1)
 
 
 class InnerProductDecoder(nn.Module):
